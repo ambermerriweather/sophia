@@ -1,18 +1,210 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState } from '../../types.ts';
+import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../../types.ts';
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight } from 'lucide-react';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+// FIX: Define GeneratedContentProps to resolve type errors across multiple components in this file.
 interface GeneratedContentProps {
-  activity: Activity;
-  model: Model;
-  setModel: React.Dispatch<React.SetStateAction<Model>>;
-  activityState: ActivityState;
-  isReadOnly: boolean;
+    activity: Activity;
+    model: Model;
+    setModel: React.Dispatch<React.SetStateAction<Model>>;
+    activityState: ActivityState;
+    isReadOnly: boolean;
 }
+
+// --- VISUAL COMPONENTS ---
+
+const Clock: React.FC<{ time: string }> = ({ time }) => {
+  const [hour, minute] = time.split(':').map(Number);
+  const minuteDeg = (minute / 60) * 360;
+  const hourDeg = ((hour % 12) / 12) * 360 + (minute / 60) * 30;
+
+  return (
+    <div className="relative w-24 h-24 rounded-full border-2 border-slate-700 bg-white mx-auto">
+      {/* Hour hand */}
+      <div
+        className="absolute top-1/2 left-1/2 h-1 w-8 bg-slate-800"
+        style={{ transformOrigin: '0% 50%', transform: `translate(0, -50%) rotate(${hourDeg - 90}deg)` }}
+      />
+      {/* Minute hand */}
+      <div
+        className="absolute top-1/2 left-1/2 h-0.5 w-10 bg-slate-600"
+        style={{ transformOrigin: '0% 50%', transform: `translate(0, -50%) rotate(${minuteDeg - 90}deg)` }}
+      />
+      <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-slate-800 rounded-full -translate-x-1/2 -translate-y-1/2" />
+    </div>
+  );
+};
+
+const BarChart: React.FC<{ data: BarChartData[] }> = ({ data }) => {
+  const maxValue = Math.max(...data.map(d => d.value), 0);
+  return (
+    <div className="flex justify-center items-end gap-4 h-48 p-4 bg-slate-50 rounded-lg border">
+      {data.map(item => (
+        <div key={item.label} className="flex flex-col items-center gap-2">
+          <div
+            className="w-12 bg-blue-400 rounded-t-md"
+            style={{ height: `${(item.value / maxValue) * 100}%` }}
+          />
+          <span className="text-sm font-semibold">{item.label} ({item.value})</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
+    const coinMap: Record<Coin, { symbol: string, color: string }> = {
+        penny: { symbol: '1¢', color: 'bg-orange-200 text-orange-800' },
+        nickel: { symbol: '5¢', color: 'bg-slate-200 text-slate-800' },
+        dime: { symbol: '10¢', color: 'bg-sky-200 text-sky-800' },
+        quarter: { symbol: '25¢', color: 'bg-indigo-200 text-indigo-800' },
+    }
+    return (
+        <div className="flex justify-center flex-wrap gap-2">
+            {coins.map((coin, index) => (
+                <div key={`${coin}-${index}`} className={`flex items-center justify-center w-12 h-12 rounded-full font-bold ${coinMap[coin].color}`}>
+                    {coinMap[coin].symbol}
+                </div>
+            ))}
+        </div>
+    )
+}
+
+const CompareImages: React.FC<{ items: string[], options: readonly string[] }> = ({ items, options }) => {
+    const itemMap = {
+        seed: '🌱', pencil: '✏️', paper_clip: '📎', button: '🔘',
+        feather: '🪶', book: '📖', leaf: '🍃', note: '📝',
+        cup: '☕', spoon: '🥄', bucket: '🪣', thimble: '🪡'
+    } as Record<string, string>;
+
+    return (
+        <div className="grid grid-cols-2 gap-4">
+            {items.map((itemKey, index) => (
+                 <div key={itemKey} className="flex flex-col items-center p-2 border rounded-lg bg-white">
+                    <span className="text-5xl">{itemMap[itemKey]}</span>
+                    <span className="mt-2 text-sm font-semibold">{options[index]}</span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+interface BaseTenBlockSet {
+  label?: string;
+  hundreds?: number;
+  tens?: number;
+  ones?: number;
+}
+const BaseTenBlocks: React.FC<{ numbers: BaseTenBlockSet[] }> = ({ numbers }) => {
+  return (
+    <div className="flex justify-center items-start gap-8 flex-wrap">
+      {numbers.map((num, index) => (
+        <div key={index} className="flex flex-col items-center gap-2">
+          {num.label && <span className="font-bold text-lg text-slate-700">{num.label}</span>}
+          <div className="flex flex-wrap items-start gap-2 p-2 justify-center border rounded-md bg-white min-h-[104px]">
+            {/* Hundreds */}
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: num.hundreds || 0 }).map((_, i) => (
+                <div key={`h-${i}`} className="w-24 h-24 bg-yellow-300 border-2 border-yellow-500 grid grid-cols-10 grid-rows-10">
+                  {Array.from({ length: 100 }).map((_, j) => <div key={`hc-${j}`} className="border-r border-b border-yellow-400/50"></div>)}
+                </div>
+              ))}
+            </div>
+            {/* Tens */}
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: num.tens || 0 }).map((_, i) => (
+                <div key={`t-${i}`} className="w-6 h-24 bg-green-300 border-2 border-green-500 flex flex-col">
+                  {Array.from({ length: 10 }).map((_, j) => <div key={`tc-${j}`} className="flex-1 border-b border-green-400/50"></div>)}
+                </div>
+              ))}
+            </div>
+            {/* Ones */}
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: num.ones || 0 }).map((_, i) => (
+                <div key={`o-${i}`} className="w-6 h-6 bg-blue-300 border-2 border-blue-500"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const NumberLine: React.FC<{ min: number; max: number; highlight?: number; }> = ({ min, max, highlight }) => {
+    const range = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    const highlightPosition = highlight !== undefined ? ((highlight - min) / (max - min)) * 100 : null;
+
+    return (
+        <div className="w-full px-4 py-8">
+            <div className="relative h-1 bg-slate-300 rounded-full">
+                {range.map(num => {
+                    const position = ((num - min) / (max - min)) * 100;
+                    const isEndpoint = num === min || num === max;
+                    const isHighlight = num === highlight;
+                    return (
+                        <div key={num} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${position}%` }}>
+                            <div className={`w-0.5 ${isEndpoint || isHighlight ? 'h-4' : 'h-2'} bg-slate-400`}></div>
+                            {(isEndpoint || isHighlight) && <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm font-semibold">{num}</span>}
+                        </div>
+                    )
+                })}
+                {highlightPosition !== null && (
+                    <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${highlightPosition}%` }}>
+                        <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-white ring-2 ring-red-500"></div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
+const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }) => {
+  return (
+    <div className="my-4 p-4 flex justify-center items-center bg-slate-100 rounded-lg border">
+      {(() => {
+        switch (visual.type) {
+          case 'count':
+            return <div className="text-5xl flex flex-wrap gap-2 justify-center">{Array.from({ length: visual.count }, (_, i) => <span key={i}>{visual.item === 'apple' ? '🍎' : '⚫️'}</span>)}</div>;
+          case 'bar-chart':
+            return <BarChart data={visual.data} />;
+          case 'clock-face':
+            return <Clock time={visual.time} />;
+          case 'clocks':
+            return (
+                <div className="grid grid-cols-2 gap-4">
+                    {visual.options.map((time, i) => (
+                        <div key={i} className="flex flex-col items-center gap-1">
+                            <Clock time={time} />
+                            <span className="text-sm font-bold">{visual.labels[i]}</span>
+                        </div>
+                    ))}
+                </div>
+            );
+          case 'coins':
+            return <Coins coins={visual.coins}/>
+          case 'compare-images':
+            return <CompareImages items={visual.items} options={visual.options}/>
+          case 'base-ten-blocks':
+            return <BaseTenBlocks numbers={visual.numbers} />
+          case 'number-line':
+            return <NumberLine min={visual.min} max={visual.max} highlight={visual.highlight} />
+          default:
+            return null;
+        }
+      })()}
+    </div>
+  );
+};
+
+
+// --- END VISUAL COMPONENTS ---
+
 
 const storyTimeSchema = {
   type: Type.OBJECT,
@@ -221,19 +413,14 @@ const GroupedActivityContent: React.FC<GeneratedContentProps> = ({ activity, mod
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {currentQuestion.options.map((option, index) => {
             const isSelected = currentAnswer?.answerIndex === index;
-            const isCorrect = currentQuestion.correctAnswerIndex === index;
             
             let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-            let icon = null;
 
             if (hasAnswered) {
-                if (isCorrect) {
-                    buttonClass = "bg-green-100 border-green-300 text-green-800";
-                    icon = <ThumbsUp className="w-4 h-4 ml-auto"/>;
-                } else if (isSelected && !isCorrect) {
-                    buttonClass = "bg-slate-100 border-slate-300 text-slate-800 opacity-60";
+                if (isSelected) {
+                    buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
                 } else {
-                    buttonClass = "bg-white border-slate-200 opacity-50";
+                    buttonClass = "bg-slate-50 border-slate-200 opacity-60";
                 }
             }
 
@@ -246,7 +433,6 @@ const GroupedActivityContent: React.FC<GeneratedContentProps> = ({ activity, mod
                 onClick={() => handleAnswer(currentSubItem.id, index, currentQuestion.correctAnswerIndex)}
               >
                 {option}
-                {icon}
               </Button>
             );
           })}
@@ -353,8 +539,8 @@ const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model
                             <div key={word} className="flex justify-between items-center bg-white p-2 rounded-lg border">
                                 <span className="font-semibold text-lg">{word}</span>
                                 <div className="flex gap-2">
-                                    <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleSightWordScore(word, true)}><ThumbsUp /></Button>
-                                    <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleSightWordScore(word, false)}><ThumbsDown /></Button>
+                                    <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleSightWordScore(word, true)} disabled={isReadOnly || !!answer}><ThumbsUp /></Button>
+                                    <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleSightWordScore(word, false)} disabled={isReadOnly || !!answer}><ThumbsDown /></Button>
                                 </div>
                             </div>
                         )
@@ -383,12 +569,19 @@ const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model
                 <div className="p-4 border rounded-lg">
                     <p className="font-semibold text-center text-2xl">Which word rhymes with <span className="font-bold text-pink-600">{question.promptWord}</span>?</p>
                     <div className="mt-4 grid grid-cols-2 gap-2">
-                        {question.options.map((opt, idx) => (
-                             <Button key={idx} variant={answer?.answerIndex === idx ? 'default' : 'outline'} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={hasAnswered}>
-                                {opt}
-                                {hasAnswered && idx === question.correctAnswerIndex && <Check className="w-4 h-4 ml-auto"/>}
-                            </Button>
-                        ))}
+                        {question.options.map((opt, idx) => {
+                             const isSelected = answer?.answerIndex === idx;
+                             let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
+                             if (hasAnswered) {
+                                 if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+                                 else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
+                             }
+                             return (
+                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
+                                    {opt}
+                                </Button>
+                             )
+                        })}
                     </div>
                 </div>
                 {subStageIndex < generatedContent.rhymes.length - 1 && hasAnswered && (
@@ -415,12 +608,19 @@ const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model
                 <div className="p-4 border rounded-lg">
                     <p className="font-semibold text-center text-2xl">How many syllables in <span className="font-bold text-indigo-600">{question.word}</span>?</p>
                     <div className="mt-4 grid grid-cols-4 gap-2">
-                        {question.options.map((opt, idx) => (
-                             <Button key={idx} variant={answer?.answerIndex === idx ? 'default' : 'outline'} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={hasAnswered}>
-                                {opt}
-                                {hasAnswered && idx === question.correctAnswerIndex && <Check className="w-4 h-4 ml-auto"/>}
-                            </Button>
-                        ))}
+                        {question.options.map((opt, idx) => {
+                            const isSelected = answer?.answerIndex === idx;
+                            let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
+                            if (hasAnswered) {
+                                if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+                                else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
+                            }
+                            return (
+                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
+                                    {opt}
+                                </Button>
+                            )
+                        })}
                     </div>
                 </div>
                 {subStageIndex < generatedContent.syllables.length - 1 && hasAnswered && (
@@ -441,7 +641,7 @@ const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model
     return null;
 }
 
-const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState }) => {
+const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [stage, setStage] = useState<'corrections' | 'contractions'>('corrections');
@@ -514,12 +714,19 @@ const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, mod
                 <div className="p-4 border rounded-lg">
                     <p className="font-semibold text-slate-800">{question.question}</p>
                     <div className="mt-4 grid grid-cols-1 gap-2">
-                        {question.options.map((opt, idx) => (
-                             <Button key={idx} variant={answer?.answerIndex === idx ? 'default' : 'outline'} className="justify-start text-left h-auto py-2 whitespace-normal" onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={hasAnswered}>
-                                {opt}
-                                {hasAnswered && idx === question.correctAnswerIndex && <Check className="w-4 h-4 ml-auto flex-shrink-0"/>}
-                            </Button>
-                        ))}
+                        {question.options.map((opt, idx) => {
+                             const isSelected = answer?.answerIndex === idx;
+                             let buttonClass = "justify-start text-left h-auto py-2 whitespace-normal";
+                             if (hasAnswered) {
+                                 if (isSelected) buttonClass += " bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+                                 else buttonClass += " bg-slate-50 border-slate-200 opacity-60";
+                             }
+                            return (
+                                <Button key={idx} variant={isSelected ? 'default' : 'outline'} className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
+                                    {opt}
+                                </Button>
+                            )
+                        })}
                     </div>
                 </div>
                  {subStageIndex < generatedContent.sentenceCorrections.length - 1 && hasAnswered && (
@@ -545,12 +752,19 @@ const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, mod
                 <div className="p-4 border rounded-lg">
                     <p className="font-semibold text-center text-2xl">What is the contraction for <span className="font-bold text-orange-600">{question.uncontracted}</span>?</p>
                     <div className="mt-4 grid grid-cols-2 gap-2">
-                        {question.options.map((opt, idx) => (
-                             <Button key={idx} variant={answer?.answerIndex === idx ? 'default' : 'outline'} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={hasAnswered}>
-                                {opt}
-                                {hasAnswered && idx === question.correctAnswerIndex && <Check className="w-4 h-4 ml-auto"/>}
-                            </Button>
-                        ))}
+                        {question.options.map((opt, idx) => {
+                            const isSelected = answer?.answerIndex === idx;
+                             let buttonClass = "";
+                             if (hasAnswered) {
+                                 if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+                                 else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
+                             }
+                            return (
+                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
+                                    {opt}
+                                </Button>
+                            )
+                        })}
                     </div>
                 </div>
                 {subStageIndex < generatedContent.contractions.length - 1 && hasAnswered && (
@@ -570,6 +784,121 @@ const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, mod
     return null;
 };
 
+
+const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel, activityState, isReadOnly }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
+    setModel(prev => {
+        const currentAnswers = prev.activity[activity.id]?.answers || {};
+        const isCorrect = answerIndex === correctIndex;
+        return {
+            ...prev,
+            activity: {
+                ...prev.activity,
+                [activity.id]: {
+                    ...prev.activity[activity.id],
+                    answers: {
+                        ...currentAnswers,
+                        [questionId]: { answerIndex, correct: isCorrect }
+                    }
+                }
+            }
+        }
+    });
+  };
+
+  const currentSubItem = activity.subItems?.[currentQuestionIndex];
+
+  if (!activity.subItems || !currentSubItem) {
+    return <div className="p-4 bg-red-50 text-red-700 rounded-lg">This activity is missing questions.</div>
+  }
+
+  const currentAnswer = activityState.answers?.[currentSubItem.id];
+  const hasAnswered = currentAnswer !== undefined;
+  
+  const totalQuestions = activity.subItems.length;
+
+  const headerConfig = {
+    'number-ninja': {
+      title: '🥷 Number Ninja Challenge',
+      bg: 'bg-blue-50/50',
+      border: 'border-blue-200',
+      text: 'text-blue-900',
+    },
+    'measurement-master': {
+      title: '📏 Measurement Master',
+      bg: 'bg-purple-50/50',
+      border: 'border-purple-200',
+      text: 'text-purple-900',
+    },
+    'data-detective': {
+      title: '📊 Data Detective',
+      bg: 'bg-indigo-50/50',
+      border: 'border-indigo-200',
+      text: 'text-indigo-900',
+    },
+    'science-explorer': {
+      title: '🔬 Science Explorer',
+      bg: 'bg-green-50/50',
+      border: 'border-green-200',
+      text: 'text-green-900',
+    },
+    'life-cycles-lab': {
+      title: '🌱 Life Cycles Lab',
+      bg: 'bg-lime-50/50',
+      border: 'border-lime-200',
+      text: 'text-lime-900',
+    },
+  }
+  const config = headerConfig[activity.displayType as keyof typeof headerConfig] || headerConfig['number-ninja'];
+
+  return (
+    <div className="space-y-4">
+      <div className={`p-4 ${config.bg} ${config.border} rounded-lg`}>
+        <h3 className={`text-lg font-bold ${config.text}`}>{config.title}</h3>
+      </div>
+
+      {currentSubItem.visual && <ActivityVisualRenderer visual={currentSubItem.visual} />}
+
+      <div className="p-4 border rounded-lg">
+        <p className="font-semibold text-slate-800">{currentQuestionIndex + 1}. {currentSubItem.prompt}</p>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {currentSubItem.responseOptions?.map((option, index) => {
+            const isSelected = currentAnswer?.answerIndex === index;
+            
+            let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
+
+            if (hasAnswered) {
+              if (isSelected) {
+                buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+              } else {
+                buttonClass = "bg-slate-50 border-slate-200 opacity-60";
+              }
+            }
+
+            return (
+              <Button
+                key={index}
+                variant="outline"
+                disabled={isReadOnly || hasAnswered}
+                className={`justify-start h-auto py-2 text-left whitespace-normal ${buttonClass}`}
+                onClick={() => handleAnswer(currentSubItem.id, index, currentSubItem.correctAnswerIndex!)}
+              >
+                {option}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex justify-between items-center">
+        <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i - 1)} disabled={currentQuestionIndex === 0}>Back</Button>
+        <span className="text-sm font-medium">{currentQuestionIndex + 1} / {totalQuestions}</span>
+        <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i + 1)} disabled={currentQuestionIndex === totalQuestions - 1}>Next</Button>
+      </div>
+    </div>
+  );
+};
 
 const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel, activityState, isReadOnly }) => {
   const handleAnswer = (answerIndex: number, correctIndex: number) => {
@@ -601,24 +930,20 @@ const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel,
 
   return (
     <div className="space-y-4">
+      {activity.visual && <ActivityVisualRenderer visual={activity.visual} />}
       <div className="p-4 border rounded-lg">
         <p className="font-semibold text-slate-800">{questionText}</p>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {options.map((option, index) => {
             const isSelected = currentAnswer?.answerIndex === index;
-            const isCorrect = correctIndex === index;
             
             let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-            let icon = null;
 
             if (hasAnswered) {
-                if (isCorrect) {
-                    buttonClass = "bg-green-100 border-green-300 text-green-800";
-                    icon = <ThumbsUp className="w-4 h-4 ml-auto"/>;
-                } else if (isSelected && !isCorrect) {
-                    buttonClass = "bg-slate-100 border-slate-300 text-slate-800 opacity-60";
+                if (isSelected) {
+                    buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
                 } else {
-                    buttonClass = "bg-white border-slate-200 opacity-50";
+                    buttonClass = "bg-slate-50 border-slate-200 opacity-60";
                 }
             }
             
@@ -631,7 +956,6 @@ const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel,
                 onClick={() => handleAnswer(index, correctIndex)}
               >
                 {option}
-                {icon}
               </Button>
             );
           })}
@@ -653,6 +977,10 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
     
     if (props.activity.displayType === 'sentence-builder') {
         return <SentenceBuilderContent {...props} />
+    }
+
+    if (['number-ninja', 'measurement-master', 'data-detective', 'science-explorer', 'life-cycles-lab'].includes(props.activity.displayType!)) {
+        return <GroupedStaticMCQContent {...props} />
     }
     
     if (props.activity.type === 'virtual' && props.activity.responseOptions) {

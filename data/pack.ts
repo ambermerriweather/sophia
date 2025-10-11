@@ -4,7 +4,7 @@
 export const packData = {
   "meta": {
     "name": "K2 Master Pack — Sophia (Expanded)",
-    "version": "2.0"
+    "version": "2.1"
   },
   "progressTracking": {
     "scoreScale": "0-100%",
@@ -971,10 +971,15 @@ export const packData = {
               "id": "ma-numsense-K-1",
               "title": "Count Objects",
               "type": "virtual",
-              "prompt": "Sophia, choose how many apples (shown 7).",
+              "prompt": "Sophia, choose how many apples you see.",
               "grade": "K",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "count",
+                "item": "apple",
+                "count": 7
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1052,6 +1057,90 @@ export const packData = {
               "correctAnswerIndex": 0
             },
             {
+              "id": "ma-numsense-K-6",
+              "title": "Count Objects 2",
+              "type": "virtual",
+              "prompt": "Sophia, how many dots do you see?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "count",
+                "item": "dot",
+                "count": 9
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["8", "10", "9", "7"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-K-7",
+              "title": "Which is Greater?",
+              "type": "virtual",
+              "prompt": "Sophia, which number is bigger?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["8", "3", "Both are same", "Neither"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-numsense-K-8",
+              "title": "Count Objects 3",
+              "type": "virtual",
+              "prompt": "Sophia, how many apples do you see?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "count", "item": "apple", "count": 12 },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["10", "11", "12", "13"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-K-9",
+              "title": "What Comes Before?",
+              "type": "virtual",
+              "prompt": "Sophia, what number comes right before 7?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["5", "6", "8", "7"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-numsense-K-10",
+              "title": "Number Word Match 2",
+              "type": "virtual",
+              "prompt": "Sophia, choose the number that matches 'three'.",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["2", "4", "3", "5"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-K-11",
+              "title": "Counting Forward",
+              "type": "virtual",
+              "prompt": "Sophia, what number comes next: 4, 5, 6, __.",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["8", "7", "5", "6"],
+              "correctAnswerIndex": 1
+            },
+            {
               "id": "ma-numsense-K-5",
               "title": "Count to 20",
               "type": "recording",
@@ -1073,6 +1162,7 @@ export const packData = {
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "40", "tens": 4 }] },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1094,6 +1184,13 @@ export const packData = {
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "base-ten-blocks",
+                "numbers": [
+                  { "label": "9", "ones": 9 },
+                  { "label": "12", "tens": 1, "ones": 2 }
+                ]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1136,6 +1233,7 @@ export const packData = {
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "36", "tens": 3, "ones": 6 }] },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1150,10 +1248,98 @@ export const packData = {
               "correctAnswerIndex": 2
             },
             {
+              "id": "ma-numsense-1-6",
+              "title": "Skip Count 5s",
+              "type": "virtual",
+              "prompt": "Sophia, choose the next number: 5, 10, 15, __.",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["16", "25", "20", "30"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-1-7",
+              "title": "10 More",
+              "type": "virtual",
+              "prompt": "Sophia, what is 10 more than 45?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "45", "tens": 4, "ones": 5 }] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["46", "35", "55", "450"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-1-8",
+              "title": "10 Less",
+              "type": "virtual",
+              "prompt": "Sophia, what is 10 less than 62?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "62", "tens": 6, "ones": 2 }] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["61", "72", "52", "6.2"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-1-9",
+              "title": "Compare 2-digit",
+              "type": "virtual",
+              "prompt": "Sophia, which number is smaller: 81 or 18?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "base-ten-blocks",
+                "numbers": [
+                  { "label": "81", "tens": 8, "ones": 1 },
+                  { "label": "18", "tens": 1, "ones": 8 }
+                ]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["81", "18", "They are the same", "Neither"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-numsense-1-10",
+              "title": "Skip Count 10s",
+              "type": "virtual",
+              "prompt": "Sophia, choose the next number: 30, 40, 50, __.",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["51", "70", "100", "60"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "ma-numsense-1-11",
+              "title": "Place Value - Tens and Ones",
+              "type": "virtual",
+              "prompt": "Sophia, how many ones are in the number 57?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "57", "tens": 5, "ones": 7 }] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["5", "7", "50", "12"],
+              "correctAnswerIndex": 1
+            },
+            {
               "id": "ma-numsense-1-5",
               "title": "Hundreds Chart",
               "type": "offline",
-              "prompt": "Sophia, point to 99 on a chart; mark complete.",
+              "prompt": "Sophia, on a hundreds chart, point to 10 different numbers an adult calls out (e.g., 15, 42, 99); mark complete.",
               "grade": "1",
               "scoring": "manual",
               "timerRequired": true,
@@ -1192,6 +1378,7 @@ export const packData = {
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "572", "hundreds": 5, "tens": 7, "ones": 2 }] },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1234,6 +1421,7 @@ export const packData = {
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "number-line", "min": 40, "max": 50, "highlight": 48 },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1246,6 +1434,93 @@ export const packData = {
                 "40"
               ],
               "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-numsense-2-6",
+              "title": "Expanded Form 2",
+              "type": "virtual",
+              "prompt": "Sophia, choose the expanded form of 281.",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "base-ten-blocks", "numbers": [{ "label": "281", "hundreds": 2, "tens": 8, "ones": 1 }] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["200 + 8 + 1", "20 + 80 + 1", "200 + 80 + 1", "2 + 8 + 1"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-2-7",
+              "title": "Odd/Even",
+              "type": "virtual",
+              "prompt": "Sophia, which of these numbers is even?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["13", "21", "7", "30"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "ma-numsense-2-8",
+              "title": "Compare 3-digit 2",
+              "type": "virtual",
+              "prompt": "Sophia, which statement is true?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "base-ten-blocks",
+                "numbers": [
+                  { "label": "345", "hundreds": 3, "tens": 4, "ones": 5 },
+                  { "label": "354", "hundreds": 3, "tens": 5, "ones": 4 }
+                ]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["345 > 354", "345 < 354", "345 = 354", "453 < 354"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-numsense-2-9",
+              "title": "Skip count by 100s",
+              "type": "virtual",
+              "prompt": "Sophia, what number comes next: 250, 350, 450, __.",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["460", "500", "550", "650"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-numsense-2-10",
+              "title": "Place Value Puzzle",
+              "type": "virtual",
+              "prompt": "Sophia, what number has 4 hundreds, 0 tens, and 8 ones?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["480", "408", "804", "48"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-numsense-2-11",
+              "title": "Rounding 2",
+              "type": "virtual",
+              "prompt": "Sophia, what is 88 rounded to the nearest ten?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "number-line", "min": 80, "max": 90, "highlight": 88 },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "numsense"],
+              "responseOptions": ["80", "85", "100", "90"],
+              "correctAnswerIndex": 3
             },
             {
               "id": "ma-numsense-2-5",
@@ -1280,6 +1555,11 @@ export const packData = {
               "grade": "K",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "compare-images",
+                "items": ["seed", "button", "pencil", "paper_clip"],
+                "options": ["Seed", "Button", "Pencil", "Paper clip"]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1301,6 +1581,11 @@ export const packData = {
               "grade": "K",
               "scoring": "auto",
               "timerRequired": true,
+               "visual": {
+                "type": "compare-images",
+                "items": ["note", "feather", "book", "leaf"],
+                "options": ["Note", "Feather", "Book", "Leaf"]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1339,7 +1624,7 @@ export const packData = {
               "id": "ma-measdata-K-4",
               "title": "Time Sense",
               "type": "virtual",
-              "prompt": "Sophia, choose morning activity.",
+              "prompt": "Sophia, choose the morning activity.",
               "grade": "K",
               "scoring": "auto",
               "timerRequired": true,
@@ -1355,6 +1640,76 @@ export const packData = {
                 "See stars"
               ],
               "correctAnswerIndex": 2
+            },
+             {
+              "id": "ma-measdata-K-6",
+              "title": "Capacity Compare",
+              "type": "virtual",
+              "prompt": "Sophia, which container holds the most water?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "compare-images",
+                "items": ["cup", "spoon", "bucket", "thimble"],
+                "options": ["Cup", "Spoon", "Bucket", "Thimble"]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Cup", "Spoon", "Bucket", "Thimble"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-measdata-K-7",
+              "title": "Coins ID 2",
+              "type": "virtual",
+              "prompt": "Sophia, choose the dime.",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Quarter", "Penny", "Dime", "Nickel"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-measdata-K-8",
+              "title": "Coins ID 3",
+              "type": "virtual",
+              "prompt": "Sophia, choose the nickel.",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Quarter", "Penny", "Dime", "Nickel"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "ma-measdata-K-9",
+              "title": "Coins ID 4",
+              "type": "virtual",
+              "prompt": "Sophia, choose the quarter.",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Quarter", "Penny", "Dime", "Nickel"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-measdata-K-10",
+              "title": "Time Sense 2",
+              "type": "virtual",
+              "prompt": "Sophia, which activity takes longer?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Brushing your teeth", "Sleeping at night", "Clapping your hands", "Tying a shoe"],
+              "correctAnswerIndex": 1
             },
             {
               "id": "ma-measdata-K-5",
@@ -1399,6 +1754,11 @@ export const packData = {
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "clocks",
+                "options": ["12:15", "6:00", "3:30", "9:00"],
+                 "labels": ["Clock A", "Clock B", "Clock C", "Clock D"]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1410,16 +1770,20 @@ export const packData = {
                 "Clock B",
                 "Clock A"
               ],
-              "correctAnswerIndex": 2
+              "correctAnswerIndex": 1
             },
             {
               "id": "ma-measdata-1-3",
               "title": "Coin Value",
               "type": "virtual",
-              "prompt": "Sophia, choose total: 25¢ + 10¢.",
+              "prompt": "Sophia, what is the total of one quarter and one dime?",
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "coins",
+                "coins": ["quarter", "dime"]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1437,10 +1801,14 @@ export const packData = {
               "id": "ma-measdata-1-4",
               "title": "Bar Graph",
               "type": "virtual",
-              "prompt": "Sophia, choose which bar is taller.",
+              "prompt": "Sophia, look at the graph. Which animal is there more of?",
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "bar-chart",
+                "data": [{ "label": "Cats", "value": 3 }, { "label": "Dogs", "value": 5 }]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1448,10 +1816,108 @@ export const packData = {
               ],
               "responseOptions": [
                 "Cats",
-                "Equal",
+                "They are equal",
                 "Dogs",
-                "None"
+                "Neither"
               ],
+              "correctAnswerIndex": 2
+            },
+             {
+              "id": "ma-measdata-1-6",
+              "title": "Time to the Hour",
+              "type": "virtual",
+              "prompt": "Sophia, choose the clock that shows 8:00.",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "clocks",
+                "options": ["8:00", "8:30", "7:00", "12:08"],
+                "labels": ["Clock A", "Clock B", "Clock C", "Clock D"]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Clock A", "Clock B", "Clock C", "Clock D"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-measdata-1-7",
+              "title": "Coin Value 2",
+              "type": "virtual",
+              "prompt": "Sophia, what is the total of 1 dime, 1 nickel, and 1 penny?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "coins", "coins": ["dime", "nickel", "penny"] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["15¢", "16¢", "21¢", "11¢"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-measdata-1-8",
+              "title": "Bar Graph 2",
+              "type": "virtual",
+              "prompt": "Sophia, how many more dogs than cats are there?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "bar-chart",
+                "data": [{ "label": "Cats", "value": 3 }, { "label": "Dogs", "value": 5 }]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["1", "2", "3", "8"],
+              "correctAnswerIndex": 1
+            },
+             {
+              "id": "ma-measdata-1-9",
+              "title": "Coin Value 3",
+              "type": "virtual",
+              "prompt": "Sophia, what is the total of 3 dimes?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "coins", "coins": ["dime", "dime", "dime"] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["15¢", "30¢", "3¢", "25¢"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-measdata-1-10",
+              "title": "Time Half-Hour 2",
+              "type": "virtual",
+              "prompt": "Sophia, choose the clock that shows 11:30.",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "clocks",
+                "options": ["11:00", "1:30", "10:30", "11:30"],
+                "labels": ["Clock A", "Clock B", "Clock C", "Clock D"]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Clock A", "Clock B", "Clock C", "Clock D"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "ma-measdata-1-11",
+              "title": "Bar Graph 3",
+              "type": "virtual",
+              "prompt": "Sophia, how many pets are there in total?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "bar-chart",
+                "data": [{ "label": "Cats", "value": 3 }, { "label": "Dogs", "value": 5 }]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["2", "5", "8", "3"],
               "correctAnswerIndex": 2
             },
             {
@@ -1472,10 +1938,11 @@ export const packData = {
               "id": "ma-measdata-2-1",
               "title": "Time to 5",
               "type": "virtual",
-              "prompt": "Sophia, choose the time shown.",
+              "prompt": "Sophia, choose the time shown on the clock.",
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "clock-face", "time": "4:25" },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -1493,7 +1960,7 @@ export const packData = {
               "id": "ma-measdata-2-2",
               "title": "Money Sum",
               "type": "virtual",
-              "prompt": "Sophia, choose coins to make 75¢.",
+              "prompt": "Sophia, which set of coins makes 75¢?",
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
@@ -1551,6 +2018,92 @@ export const packData = {
                 "Centimeters"
               ],
               "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-measdata-2-6",
+              "title": "Elapsed Time",
+              "type": "virtual",
+              "prompt": "It is 2:10. What time will it be in 15 minutes?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "clock-face", "time": "2:10" },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["2:20", "2:30", "2:25", "3:10"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-measdata-2-7",
+              "title": "Money Sum 2",
+              "type": "virtual",
+              "prompt": "Sophia, how much is 3 dimes and 2 nickels?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "coins", "coins": ["dime", "dime", "dime", "nickel", "nickel"] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["32¢", "40¢", "25¢", "50¢"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "ma-measdata-2-8",
+              "title": "Line Plot 2",
+              "type": "virtual",
+              "prompt": "Sophia, how many items were measured in total?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["7", "8", "9", "10"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "ma-measdata-2-9",
+              "title": "Money Sum 3",
+              "type": "virtual",
+              "prompt": "Sophia, how much is 2 quarters, 2 dimes, and 3 pennies?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "coins", "coins": ["quarter", "quarter", "dime", "dime", "penny", "penny", "penny"] },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["73¢", "53¢", "68¢", "78¢"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-measdata-2-10",
+              "title": "Time to 5 mins 2",
+              "type": "virtual",
+              "prompt": "Sophia, what time does this clock show?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": { "type": "clock-face", "time": "5:50" },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["5:50", "10:30", "11:25", "5:10"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "ma-measdata-2-11",
+              "title": "Bar Chart - 2nd Grade",
+              "type": "virtual",
+              "prompt": "Sophia, according to the chart, which sport is the most popular?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "visual": {
+                "type": "bar-chart",
+                "data": [{ "label": "Soccer", "value": 8 }, { "label": "Baseball", "value": 5 }, {"label": "Dance", "value": 6} ]
+              },
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "measdata"],
+              "responseOptions": ["Baseball", "Dance", "Soccer", "They are equal"],
+              "correctAnswerIndex": 2
             },
             {
               "id": "ma-measdata-2-5",
@@ -1876,6 +2429,134 @@ export const packData = {
                 "effort",
                 "inquiry"
               ]
+            }
+          ]
+        },
+        {
+          "name": "Life Cycles",
+          "levels": {
+            "Foundations": [],
+            "Growth": [],
+            "Secure": []
+          },
+          "activities": [],
+          "items": [
+            {
+              "id": "sc-lifecyc-K-1",
+              "title": "Butterfly Life Cycle",
+              "type": "virtual",
+              "prompt": "Sophia, which picture shows the first stage of a butterfly's life?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Egg", "Caterpillar", "Chrysalis", "Butterfly"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-K-2",
+              "title": "What Does a Plant Need?",
+              "type": "virtual",
+              "prompt": "Sophia, what does a seed need to grow into a big plant?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Sun and Water", "Milk and Cookies", "Toys and a Bed", "Snow and Ice"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-K-3",
+              "title": "Matching Baby Animals",
+              "type": "virtual",
+              "prompt": "Sophia, which animal is a baby chicken?",
+              "grade": "K",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Puppy", "Kitten", "Chick", "Calf"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-1-1",
+              "title": "Frog Life Cycle Order",
+              "type": "virtual",
+              "prompt": "Sophia, what comes after the eggs in a frog's life cycle?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Froglet", "Tadpole", "Adult Frog", "A bigger egg"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-1-2",
+              "title": "Plant Parts",
+              "type": "virtual",
+              "prompt": "Sophia, which part of the plant soaks up water from the soil?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Leaves", "Flower", "Stem", "Roots"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "sc-lifecyc-1-3",
+              "title": "Parent and Baby Traits",
+              "type": "virtual",
+              "prompt": "A mother dog has floppy ears. What will her puppy likely have?",
+              "grade": "1",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Floppy ears", "Wings", "Scales", "A trunk"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-2-1",
+              "title": "Butterfly Changes",
+              "type": "virtual",
+              "prompt": "A caterpillar makes a chrysalis and changes inside. What is this amazing stage of change called?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Larva", "Pupa", "Adult", "Egg"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-2",
+              "title": "How Seeds Travel",
+              "type": "virtual",
+              "prompt": "How do seeds from a dandelion travel to new places to grow?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["By floating on the wind", "By swimming in the ocean", "By sticking to animal fur", "By being eaten by birds"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-2-3",
+              "title": "Traits and Behaviors",
+              "type": "virtual",
+              "prompt": "Which of these is something a bear learns, not something it is born with?",
+              "grade": "2",
+              "scoring": "auto",
+              "timerRequired": true,
+              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+              "successStickerTags": ["effort", "lifecyc"],
+              "responseOptions": ["Having fur", "Catching fish in a river", "Having sharp claws", "Hibernating in winter"],
+              "correctAnswerIndex": 1
             }
           ]
         }

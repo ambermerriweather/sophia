@@ -147,6 +147,37 @@ ${model.overallNotes}
   return summary.trim();
 };
 
+export const calculateDomainPerformance = (model: Model, domain: Domain): { correct: number, total: number, percentage: number, status: string } => {
+    let totalCorrect = 0;
+    let totalAnswered = 0;
+
+    for (const activity of domain.activities) {
+        const state = model.activity[activity.id];
+        // We only care about completed virtual activities that have answers
+        if (state?.completed && state.answers && activity.type === 'virtual') {
+            const answerKeys = Object.keys(state.answers);
+            if (answerKeys.length > 0) {
+                 const activityCorrect = Object.values(state.answers).filter(a => a.correct).length;
+                 const activityTotal = answerKeys.length;
+                 totalCorrect += activityCorrect;
+                 totalAnswered += activityTotal;
+            }
+        }
+    }
+    
+    const percentage = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+    let status = 'Not enough data';
+    if (totalAnswered > 2) { // Only give a status if there's enough data
+        if (percentage >= 80) status = 'On Track';
+        else if (percentage >= 60) status = 'Developing Skills';
+        else status = 'Needs More Practice';
+    }
+
+
+    return { correct: totalCorrect, total: totalAnswered, percentage, status };
+}
+
 
 export const emailResults = async (model: Model, domains: Domain[]): Promise<{ ok: boolean }> => {
     const summary = buildTextSummary(model, domains);

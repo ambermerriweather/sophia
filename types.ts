@@ -52,6 +52,25 @@ export interface SentenceBuilderGeneratedState {
 // --- END NEW TYPES ---
 
 
+// --- TYPES FOR VISUALS ---
+export interface BarChartData {
+  label: string;
+  value: number;
+}
+
+export type Coin = 'penny' | 'nickel' | 'dime' | 'quarter';
+
+export type ActivityVisual =
+  | { type: 'count'; item: 'apple' | 'dot'; count: number }
+  | { type: 'bar-chart'; data: BarChartData[] }
+  | { type: 'clocks'; options: string[], labels: readonly string[] }
+  | { type: 'clock-face'; time: string }
+  | { type: 'coins'; coins: Coin[] }
+  | { type: 'compare-images'; items: Array<'seed' | 'button' | 'pencil' | 'paper_clip' | 'feather' | 'book' | 'leaf' | 'cup' | 'spoon' | 'bucket' | 'thimble' | 'note'>; options: readonly string[] }
+  | { type: 'base-ten-blocks'; numbers: Array<{ label?: string; hundreds?: number; tens?: number; ones?: number }> }
+  | { type: 'number-line'; min: number; max: number; highlight?: number };
+
+
 // Represents a single educational activity, now with support for grouping
 export interface Activity {
   id: string;
@@ -63,7 +82,8 @@ export interface Activity {
   subItems?: Activity[]; // For grouped activities
   responseOptions?: readonly string[]; // From pack
   correctAnswerIndex?: number; // From pack
-  displayType?: 'story-time' | 'word-detective' | 'sentence-builder'; // To specify custom renderers
+  displayType?: 'story-time' | 'word-detective' | 'sentence-builder' | 'number-ninja' | 'measurement-master' | 'data-detective' | 'science-explorer' | 'life-cycles-lab'; // To specify custom renderers
+  visual?: ActivityVisual;
 }
 
 // Represents a major subject area

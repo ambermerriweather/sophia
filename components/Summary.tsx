@@ -1,17 +1,34 @@
 
+
 import React, { useState } from 'react';
 import { Model, ActivityState, Domain } from '../../types.ts';
-import { buildTextSummary, emailResults, overallStatus, domainStatus, nextStepsForDomain } from '../../lib/utils.ts';
+import { buildTextSummary, emailResults, overallStatus, domainStatus, nextStepsForDomain, calculateDomainPerformance } from '../../lib/utils.ts';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
 import { Label } from './ui/Label.tsx';
-import { Download, Mail, Printer, ArrowLeft, Award } from 'lucide-react';
+import { Download, Mail, Printer, ArrowLeft, Award, CheckCircle, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/Card.tsx';
+
 
 interface SummaryProps {
   model: Model;
   setModel: React.Dispatch<React.SetStateAction<Model>>;
   setView: (view: 'assessment' | 'summary') => void;
   domains: Domain[];
+}
+
+const PerformanceStatus: React.FC<{ status: string }> = ({ status }) => {
+    const config = {
+        'On Track': { icon: <CheckCircle className="w-5 h-5 text-green-600"/>, text: 'text-green-700', bg: 'bg-green-100'},
+        'Developing Skills': { icon: <TrendingUp className="w-5 h-5 text-blue-600"/>, text: 'text-blue-700', bg: 'bg-blue-100'},
+        'Needs More Practice': { icon: <AlertTriangle className="w-5 h-5 text-amber-600"/>, text: 'text-amber-700', bg: 'bg-amber-100'},
+        'Not enough data': { icon: null, text: 'text-slate-500', bg: 'bg-slate-100'}
+    }
+    const current = config[status] || config['Not enough data'];
+    return <div className={`flex items-center gap-2 text-sm font-semibold p-2 rounded-md ${current.bg} ${current.text}`}>
+        {current.icon}
+        <span>{status}</span>
+    </div>
 }
 
 export const Summary: React.FC<SummaryProps> = ({ model, setModel, setView, domains }) => {
@@ -78,6 +95,31 @@ export const Summary: React.FC<SummaryProps> = ({ model, setModel, setView, doma
                 )}
             </div>
        </div>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Mom's Quick Look: Grade Level Check-in</CardTitle>
+            <p className="text-sm text-slate-500">This is a simple check based on the virtual activities completed. It helps spot areas of strength and opportunities for practice.</p>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {domains.map(domain => {
+                const performance = calculateDomainPerformance(model, domain);
+                if (performance.total === 0) return null; // Don't show domains with no data
+                return (
+                    <div key={domain.key} className="p-4 border rounded-lg bg-slate-50/50">
+                        <h4 className="font-bold text-slate-800">{domain.label}</h4>
+                        <div className="flex justify-between items-center mt-2">
+                           <PerformanceStatus status={performance.status} />
+                           <span className="text-sm text-slate-600">
+                                {performance.correct} / {performance.total} correct ({performance.percentage}%)
+                           </span>
+                        </div>
+                    </div>
+                )
+            })}
+        </CardContent>
+      </Card>
+
 
       <div className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/80 space-y-6">
         <div className="flex justify-between items-center">
