@@ -1,0 +1,8 @@
+{
+  "name": "Sophia's Second Grade Playcheck",
+  "description": "An interactive tool for observing and supporting a second grader's learning journey across Language, Math, World, and Emotional skills. Includes on-screen activities, progress tracking, and summary reports.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
