@@ -1,3 +1,4 @@
+
 // data/pack.ts
 // This file contains the full educational content pack for the application.
 
@@ -940,7 +941,7 @@ export const packData = {
               "id": "rl-writegram-2-5",
               "title": "Revise/Edit",
               "type": "offline",
-              "prompt": "Sophia, revise your paragraph using a checklist; mark complete.",
+              "prompt": "Ask Sophia to revise a paragraph she wrote. Use a simple checklist together: 1. Does every sentence start with a capital letter? 2. Does every sentence end with a punctuation mark (. ! ?)? 3. Does it make sense when you read it aloud? Mark complete when you've reviewed it together.",
               "grade": "2",
               "scoring": "manual",
               "timerRequired": true,
@@ -1921,6 +1922,27 @@ export const packData = {
               "correctAnswerIndex": 2
             },
             {
+                "id": "ma-measdata-1-12",
+                "title": "Bar Graph 4",
+                "type": "virtual",
+                "prompt": "Sophia, which flavor was chosen by the fewest people?",
+                "grade": "1",
+                "scoring": "auto",
+                "timerRequired": true,
+                "visual": {
+                    "type": "bar-chart",
+                    "data": [
+                        { "label": "Vanilla", "value": 6 },
+                        { "label": "Chocolate", "value": 9 },
+                        { "label": "Strawberry", "value": 4 }
+                    ]
+                },
+                "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+                "successStickerTags": ["effort", "measdata"],
+                "responseOptions": ["Vanilla", "Chocolate", "Strawberry", "All are equal"],
+                "correctAnswerIndex": 2
+            },
+            {
               "id": "ma-measdata-1-5",
               "title": "Measure Task",
               "type": "offline",
@@ -1985,6 +2007,15 @@ export const packData = {
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": {
+                "type": "line-plot",
+                "unit": "cm",
+                "data": [
+                  { "value": 3, "count": 2 },
+                  { "value": 4, "count": 4 },
+                  { "value": 5, "count": 3 }
+                ]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -2055,6 +2086,15 @@ export const packData = {
               "grade": "2",
               "scoring": "auto",
               "timerRequired": true,
+               "visual": {
+                "type": "line-plot",
+                "unit": "cm",
+                "data": [
+                  { "value": 3, "count": 2 },
+                  { "value": 4, "count": 4 },
+                  { "value": 5, "count": 3 }
+                ]
+              },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": ["effort", "measdata"],
               "responseOptions": ["7", "8", "9", "10"],
@@ -2105,6 +2145,27 @@ export const packData = {
               "responseOptions": ["Baseball", "Dance", "Soccer", "They are equal"],
               "correctAnswerIndex": 2
             },
+             {
+                "id": "ma-measdata-2-12",
+                "title": "Bar Chart Comparison",
+                "type": "virtual",
+                "prompt": "Sophia, how many more people chose Soccer than Dance?",
+                "grade": "2",
+                "scoring": "auto",
+                "timerRequired": true,
+                "visual": {
+                    "type": "bar-chart",
+                    "data": [
+                        { "label": "Soccer", "value": 8 },
+                        { "label": "Baseball", "value": 5 },
+                        { "label": "Dance", "value": 6 }
+                    ]
+                },
+                "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
+                "successStickerTags": ["effort", "measdata"],
+                "responseOptions": ["1", "2", "3", "14"],
+                "correctAnswerIndex": 1
+            },
             {
               "id": "ma-measdata-2-5",
               "title": "Graph Read 2",
@@ -2145,16 +2206,8 @@ export const packData = {
               "scoring": "auto",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Tongue",
-                "Eyes",
-                "Ears",
-                "Nose"
-              ],
+              "successStickerTags": ["effort", "inquiry"],
+              "responseOptions": ["Tongue", "Eyes", "Ears", "Nose"],
               "correctAnswerIndex": 0
             },
             {
@@ -2166,16 +2219,8 @@ export const packData = {
               "scoring": "auto",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Car",
-                "Toy",
-                "Plant",
-                "Rock"
-              ],
+              "successStickerTags": ["effort", "inquiry"],
+              "responseOptions": ["Car", "Toy", "Plant", "Rock"],
               "correctAnswerIndex": 2
             },
             {
@@ -2187,16 +2232,8 @@ export const packData = {
               "scoring": "auto",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Magnifying glass",
-                "Ruler",
-                "Thermometer",
-                "Spoon"
-              ],
+              "successStickerTags": ["effort", "inquiry"],
+              "responseOptions": ["Magnifying glass", "Ruler", "Thermometer", "Spoon"],
               "correctAnswerIndex": 0
             },
             {
@@ -2208,17 +2245,78 @@ export const packData = {
               "scoring": "auto",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Leaf",
-                "Rock",
-                "Ice",
-                "Paper"
-              ],
+              "successStickerTags": ["effort", "inquiry"],
+              "responseOptions": ["Leaf", "Rock", "Ice", "Paper"],
               "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-inquiry-K-6",
+              "title": "Sink or Swim?",
+              "type": "virtual",
+              "displayType": "sink-or-swim",
+              "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
+              "grade": "K",
+              "scoring": "manual"
+            },
+            {
+              "id": "sc-inquiry-K-7",
+              "title": "Sense of Hearing",
+              "type": "virtual",
+              "prompt": "Which sense helps you hear a bird singing?",
+              "grade": "K",
+              "scoring": "auto",
+              "responseOptions": ["Smell", "Hearing", "Touch", "Sight"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-inquiry-K-8",
+              "title": "Weather Observation",
+              "type": "virtual",
+              "prompt": "What kind of weather is good for flying a kite?",
+              "grade": "K",
+              "scoring": "auto",
+              "responseOptions": ["Rainy", "Snowy", "Windy", "No wind"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-inquiry-K-9",
+              "title": "Sorting",
+              "type": "virtual",
+              "prompt": "Which of these does NOT belong with the others?",
+              "grade": "K",
+              "scoring": "auto",
+              "responseOptions": ["Apple", "Banana", "Carrot", "Bicycle"],
+              "correctAnswerIndex": 3
+            },
+             {
+              "id": "sc-inquiry-K-10",
+              "title": "Living/Nonliving 2",
+              "type": "virtual",
+              "prompt": "Which of these is non-living?",
+              "grade": "K",
+              "scoring": "auto",
+              "responseOptions": ["A dog", "A flower", "A chair", "A fish"],
+              "correctAnswerIndex": 2
+            },
+            {
+                "id": "sc-inquiry-K-11",
+                "title": "Predict 2",
+                "type": "virtual",
+                "prompt": "What will happen if you leave a crayon in the hot sun?",
+                "grade": "K",
+                "scoring": "auto",
+                "responseOptions": ["It will melt", "It will freeze", "It will grow", "It will fly away"],
+                "correctAnswerIndex": 0
+            },
+             {
+                "id": "sc-inquiry-K-12",
+                "title": "Sense of Touch",
+                "type": "virtual",
+                "prompt": "Which sense tells you that a teddy bear is soft?",
+                "grade": "K",
+                "scoring": "auto",
+                "responseOptions": ["Sight", "Hearing", "Taste", "Touch"],
+                "correctAnswerIndex": 3
             },
             {
               "id": "sc-inquiry-K-5",
@@ -2229,52 +2327,27 @@ export const packData = {
               "scoring": "manual",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ]
+              "successStickerTags": ["effort", "inquiry"]
             },
             {
               "id": "sc-inquiry-1-1",
-              "title": "Hypothesis Word",
+              "title": "Hypothesis",
               "type": "virtual",
-              "prompt": "Sophia, choose the hypothesis word.",
+              "prompt": "A good scientific guess often starts with 'If..., then...'. Which is the best hypothesis?",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "When",
-                "And",
-                "If",
-                "But"
-              ],
+              "responseOptions": ["Plants are green.", "I like sunny days.", "If I give a plant more sun, then it will grow taller.", "Water is wet."],
               "correctAnswerIndex": 2
             },
             {
               "id": "sc-inquiry-1-2",
               "title": "Measure Tool",
               "type": "virtual",
-              "prompt": "Sophia, choose tool to measure length.",
+              "prompt": "Sophia, choose tool to measure temperature.",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Clock",
-                "Cup",
-                "Ruler",
-                "Scale"
-              ],
-              "correctAnswerIndex": 2
+              "responseOptions": ["Clock", "Cup", "Ruler", "Thermometer"],
+              "correctAnswerIndex": 3
             },
             {
               "id": "sc-inquiry-1-3",
@@ -2283,18 +2356,7 @@ export const packData = {
               "prompt": "Sophia, choose a way to record weather.",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Dance",
-                "Song",
-                "Chart",
-                "Nap"
-              ],
+              "responseOptions": ["Dance", "Song", "Chart", "Nap"],
               "correctAnswerIndex": 2
             },
             {
@@ -2304,33 +2366,88 @@ export const packData = {
               "prompt": "Sophia, if we water a plant daily, choose what may happen.",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Vanishes",
-                "It grows",
-                "Turns to stone",
-                "Flies"
-              ],
+              "responseOptions": ["Vanishes", "It grows", "Turns to stone", "Flies"],
               "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-inquiry-1-6",
+              "title": "Sink or Swim?",
+              "type": "virtual",
+              "displayType": "sink-or-swim",
+              "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
+              "grade": "1",
+              "scoring": "manual"
+            },
+             {
+              "id": "sc-inquiry-1-7",
+              "title": "Materials",
+              "type": "virtual",
+              "prompt": "Which object is made of wood?",
+              "grade": "1",
+              "scoring": "auto",
+              "responseOptions": ["A glass cup", "A metal spoon", "A plastic toy", "A pencil"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "sc-inquiry-1-8",
+              "title": "States of Matter",
+              "type": "virtual",
+              "prompt": "What happens when water gets very cold?",
+              "grade": "1",
+              "scoring": "auto",
+              "responseOptions": ["It turns into ice (a solid).", "It boils (turns into gas).", "It disappears.", "It turns into juice."],
+              "correctAnswerIndex": 0
+            },
+            {
+                "id": "sc-inquiry-1-9",
+                "title": "Observation vs. Opinion",
+                "type": "virtual",
+                "prompt": "Which of these is an observation (something you can see)?",
+                "grade": "1",
+                "scoring": "auto",
+                "responseOptions": ["The flower is pretty.", "The flower has five petals.", "I like flowers.", "Flowers are boring."],
+                "correctAnswerIndex": 1
+            },
+            {
+                "id": "sc-inquiry-1-10",
+                "title": "Measure Tool 2",
+                "type": "virtual",
+                "prompt": "Which tool would you use to see how heavy a rock is?",
+                "grade": "1",
+                "scoring": "auto",
+                "responseOptions": ["A ruler", "A scale", "A measuring cup", "A clock"],
+                "correctAnswerIndex": 1
+            },
+            {
+                "id": "sc-inquiry-1-11",
+                "title": "States of Matter 2",
+                "type": "virtual",
+                "prompt": "What is the steam coming from a hot kettle?",
+                "grade": "1",
+                "scoring": "auto",
+                "responseOptions": ["A solid", "A liquid", "A gas", "A surprise"],
+                "correctAnswerIndex": 2
+            },
+            {
+                "id": "sc-inquiry-1-12",
+                "title": "Comparing Objects",
+                "type": "virtual",
+                "prompt": "How are a ball and an orange similar?",
+                "grade": "1",
+                "scoring": "auto",
+                "responseOptions": ["They are both sweet.", "They are both round.", "They are both toys.", "They both grow on trees."],
+                "correctAnswerIndex": 1
             },
             {
               "id": "sc-inquiry-1-5",
               "title": "Mini Investigation",
               "type": "offline",
-              "prompt": "Sophia, water one seed and leave one dry; mark complete.",
+              "prompt": "For this offline experiment, find two identical seeds (like bean seeds). Place them in separate small cups with a bit of soil. Water one seed just a little, but keep the other one completely dry. Place both in a sunny spot. Over the next few days, observe what happens! The goal is to see if water is important for a seed to sprout. Mark complete when you have set up the experiment.",
               "grade": "1",
               "scoring": "manual",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ]
+              "successStickerTags": ["effort", "inquiry"]
             },
             {
               "id": "sc-inquiry-2-1",
@@ -2339,96 +2456,118 @@ export const packData = {
               "prompt": "Sophia, choose the testable question.",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Are rocks fun?",
-                "What helps a seed grow faster?",
-                "Why are flowers pretty?",
-                "Is blue better?"
-              ],
+              "responseOptions": ["Are rocks fun?", "Does a toy car go faster on wood or carpet?", "Why are flowers pretty?", "Is blue better?"],
               "correctAnswerIndex": 1
             },
             {
               "id": "sc-inquiry-2-2",
               "title": "Variable",
               "type": "virtual",
-              "prompt": "Sophia, choose what to change in a fair test.",
+              "prompt": "In an experiment to see what helps seeds grow, what is the ONE thing you should change to keep it a fair test?",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Guess only",
-                "Change everything",
-                "Only one variable",
-                "No record"
-              ],
-              "correctAnswerIndex": 2
+              "responseOptions": ["The type of seed", "The amount of water", "The size of the pot", "You change only ONE of these things"],
+              "correctAnswerIndex": 3
             },
             {
               "id": "sc-inquiry-2-3",
               "title": "Conclusion",
               "type": "virtual",
-              "prompt": "Sophia, data show plant A grew more. choose the conclusion.",
+              "prompt": "Data show plant A in the sun grew more than plant B in the dark. Choose the conclusion.",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "More sunlight helped growth.",
-                "Water is pizza.",
-                "Data are magic.",
-                "Sunlight hurts plants."
-              ],
+              "responseOptions": ["Sunlight helped the plant grow.", "Water is not important.", "Plants like the dark.", "The experiment failed."],
               "correctAnswerIndex": 0
             },
             {
               "id": "sc-inquiry-2-4",
-              "title": "Graph Read",
+              "title": "Erosion",
               "type": "virtual",
-              "prompt": "Sophia, choose the taller bar.",
+              "prompt": "What is it called when wind or water slowly wears away rock and soil?",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ],
-              "responseOptions": [
-                "Monday",
-                "Equal",
-                "Tuesday",
-                "Zero"
-              ],
-              "correctAnswerIndex": 0
+              "responseOptions": ["Evaporation", "Erosion", "Condensation", "Gravity"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-inquiry-2-6",
+              "title": "Sink or Swim?",
+              "type": "virtual",
+              "displayType": "sink-or-swim",
+              "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
+              "grade": "2",
+              "scoring": "manual"
+            },
+             {
+              "id": "sc-inquiry-2-7",
+              "title": "Water Cycle",
+              "type": "virtual",
+              "prompt": "What is it called when water on the ground turns into vapor and goes up into the air?",
+              "grade": "2",
+              "scoring": "auto",
+              "responseOptions": ["Precipitation", "Condensation", "Evaporation", "Collection"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-inquiry-2-8",
+              "title": "Water Cycle 2",
+              "type": "virtual",
+              "prompt": "What are clouds made of?",
+              "grade": "2",
+              "scoring": "auto",
+              "responseOptions": ["Smoke", "Cotton Candy", "Tiny water droplets", "Big rocks"],
+              "correctAnswerIndex": 2
+            },
+            {
+                "id": "sc-inquiry-2-9",
+                "title": "Physical Changes",
+                "type": "virtual",
+                "prompt": "If you cut a piece of paper into smaller pieces, what happens?",
+                "grade": "2",
+                "scoring": "auto",
+                "responseOptions": ["It's still paper, just smaller.", "It becomes a new material.", "It disappears.", "It turns into wood."],
+                "correctAnswerIndex": 0
+            },
+            {
+                "id": "sc-inquiry-2-10",
+                "title": "Food Chains",
+                "type": "virtual",
+                "prompt": "In a simple food chain, a rabbit eats grass and a fox eats the rabbit. What does the food chain show?",
+                "grade": "2",
+                "scoring": "auto",
+                "responseOptions": ["How animals play", "Where animals sleep", "How energy moves from plants to animals", "What color animals are"],
+                "correctAnswerIndex": 2
+            },
+            {
+                "id": "sc-inquiry-2-11",
+                "title": "Inherited Traits",
+                "type": "virtual",
+                "prompt": "Which of these is a trait you can inherit from your parents?",
+                "grade": "2",
+                "scoring": "auto",
+                "responseOptions": ["Your eye color", "Your favorite food", "Knowing how to ride a bike", "The language you speak"],
+                "correctAnswerIndex": 0
+            },
+            {
+                "id": "sc-inquiry-2-12",
+                "title": "Hypothesis 2",
+                "type": "virtual",
+                "prompt": "Which is a good hypothesis for an experiment about which ball bounces highest?",
+                "grade": "2",
+                "scoring": "auto",
+                "responseOptions": ["Bouncing balls is fun.", "If I drop a basketball and a tennis ball, then the basketball will bounce higher.", "This ball is orange.", "My favorite ball is the tennis ball."],
+                "correctAnswerIndex": 1
             },
             {
               "id": "sc-inquiry-2-5",
               "title": "Report",
               "type": "recording",
-              "prompt": "Sophia, tell your adult what happened; mark complete.",
+              "prompt": "After doing a simple science experiment (like the seed investigation), ask Sophia to be a scientist and report her findings. Ask her: 'What happened from beginning to end? What did you learn?' Mark complete after she shares her verbal report.",
               "grade": "2",
               "scoring": "manual",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "inquiry"
-              ]
+              "successStickerTags": ["effort", "inquiry"]
             }
           ]
         },
@@ -2448,9 +2587,7 @@ export const packData = {
               "prompt": "Sophia, which picture shows the first stage of a butterfly's life?",
               "grade": "K",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "Butterflies are beautiful insects, but they don't start out that way! They go through four big changes called a life cycle. It all begins with something very, very small.",
               "responseOptions": ["Egg", "Caterpillar", "Chrysalis", "Butterfly"],
               "correctAnswerIndex": 0
             },
@@ -2461,9 +2598,7 @@ export const packData = {
               "prompt": "Sophia, what does a seed need to grow into a big plant?",
               "grade": "K",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "Plants are living things, and just like you, they need special things to grow big and strong. Let's think about what a tiny seed needs to become a tall flower!",
               "responseOptions": ["Sun and Water", "Milk and Cookies", "Toys and a Bed", "Snow and Ice"],
               "correctAnswerIndex": 0
             },
@@ -2474,11 +2609,86 @@ export const packData = {
               "prompt": "Sophia, which animal is a baby chicken?",
               "grade": "K",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "All grown-up animals were babies once! A baby dog is a puppy, and a baby cat is a kitten. Different animals have different names for their babies.",
               "responseOptions": ["Puppy", "Kitten", "Chick", "Calf"],
               "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-K-4",
+              "title": "Butterfly Stage 2",
+              "type": "virtual",
+              "prompt": "What comes out of a butterfly's egg?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "After the egg, the next stage of the butterfly life cycle begins. Something hatches out, and it is very, very hungry!",
+              "responseOptions": ["A tiny butterfly", "A hungry caterpillar", "A ladybug", "A flower"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-K-5",
+              "title": "Plant Growth",
+              "type": "virtual",
+              "prompt": "What is the first thing that grows from a seed?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "When a seed starts to grow, it sends something down into the soil to drink water and hold it in place. This part is usually hidden underground.",
+              "responseOptions": ["A flower", "A big leaf", "A tiny root", "An apple"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-K-6",
+              "title": "Baby Animal Names",
+              "type": "virtual",
+              "prompt": "A baby dog is called a...",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "Let's test our baby animal names again! This animal is a popular pet and loves to play fetch.",
+              "responseOptions": ["Kitten", "Foal", "Puppy", "Cub"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-K-7",
+              "title": "Living Things Grow",
+              "type": "virtual",
+              "prompt": "Which of these things can grow bigger all by itself?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "One special thing about living things is that they can grow and change on their own. Non-living things stay the same size unless someone changes them.",
+              "responseOptions": ["A rock", "A kitten", "A toy car", "A shoe"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-K-8",
+              "title": "Butterfly Stage 3",
+              "type": "virtual",
+              "prompt": "What does a caterpillar make to rest and change inside?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "After the caterpillar eats and eats, it gets ready for its biggest change. It forms a special case around itself to stay safe while it transforms.",
+              "responseOptions": ["A nest", "A web", "A house", "A chrysalis"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "sc-lifecyc-K-9",
+              "title": "Plant Needs 2",
+              "type": "virtual",
+              "prompt": "Besides sun and water, what does a plant need to grow in?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "A plant can't just grow in the air! Its roots need something to hold onto and get nutrients from.",
+              "responseOptions": ["Juice", "Soil (dirt)", "Sand", "Snow"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-K-10",
+              "title": "Baby Animal Names 2",
+              "type": "virtual",
+              "prompt": "A baby cat is called a...",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "This baby animal is soft and purrs when it's happy. What is it called?",
+              "responseOptions": ["Pup", "Kitten", "Chick", "Joey"],
+              "correctAnswerIndex": 1
             },
             {
               "id": "sc-lifecyc-1-1",
@@ -2487,9 +2697,7 @@ export const packData = {
               "prompt": "Sophia, what comes after the eggs in a frog's life cycle?",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "Frogs are amphibians that go through amazing changes. Their life starts as a jelly-like egg in the water. When it hatches, it doesn't look like a frog at all!",
               "responseOptions": ["Froglet", "Tadpole", "Adult Frog", "A bigger egg"],
               "correctAnswerIndex": 1
             },
@@ -2500,9 +2708,7 @@ export const packData = {
               "prompt": "Sophia, which part of the plant soaks up water from the soil?",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "Plants have different parts that do different jobs. One part is hidden underground and acts like a straw, drinking up water and nutrients from the dirt.",
               "responseOptions": ["Leaves", "Flower", "Stem", "Roots"],
               "correctAnswerIndex": 3
             },
@@ -2513,23 +2719,96 @@ export const packData = {
               "prompt": "A mother dog has floppy ears. What will her puppy likely have?",
               "grade": "1",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "Baby animals often look like their parents. They can inherit traits, which are features like eye color, fur color, or the shape of their ears.",
               "responseOptions": ["Floppy ears", "Wings", "Scales", "A trunk"],
               "correctAnswerIndex": 0
             },
             {
-              "id": "sc-lifecyc-2-1",
-              "title": "Butterfly Changes",
+              "id": "sc-lifecyc-1-4",
+              "title": "Frog Life Cycle Stage 3",
               "type": "virtual",
-              "prompt": "A caterpillar makes a chrysalis and changes inside. What is this amazing stage of change called?",
+              "prompt": "After a tadpole grows legs, what is it called?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "The tadpole swims in the water, but soon it starts to change. It grows legs and its tail gets shorter. It's starting to look more like a frog!",
+              "responseOptions": ["Tadpole", "Adult Frog", "Froglet", "Egg"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-1-5",
+              "title": "Plant Parts 2",
+              "type": "virtual",
+              "prompt": "Which part makes seeds for a new plant?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "The most colorful part of a plant has a very important job. It helps the plant reproduce by making tiny seeds that can grow into new plants.",
+              "responseOptions": ["The roots", "The stem", "The leaves", "The flower"],
+              "correctAnswerIndex": 3
+            },
+            {
+              "id": "sc-lifecyc-1-6",
+              "title": "Inherited Traits 2",
+              "type": "virtual",
+              "prompt": "A tall dad and a tall mom have a baby. The baby will likely be:",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "Just like animals, humans also inherit traits from their parents. This includes things like height, hair color, and eye color.",
+              "responseOptions": ["Short", "Tall", "Green", "Furry"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-1-7",
+              "title": "Animal Offspring",
+              "type": "virtual",
+              "prompt": "How are baby animals different from their parents?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "Offspring (or babies) look a lot like their parents, but there are some clear differences, especially when they are very young.",
+              "responseOptions": ["They are bigger.", "They are smaller.", "They are the exact same.", "They are a different animal."],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-1-8",
+              "title": "Plant Parts 3",
+              "type": "virtual",
+              "prompt": "Which part of the plant holds it up straight and tall?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "A plant needs to reach the sunlight. One part acts like a strong stalk or body to lift the leaves and flowers up toward the sky.",
+              "responseOptions": ["The stem", "The flower", "The roots", "The seeds"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-1-9",
+              "title": "Learned vs. Inherited",
+              "type": "virtual",
+              "prompt": "Which of these is something a dog LEARNS to do?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "Animals are born with some traits (inherited), like the color of their fur. But other things, called behaviors, they have to learn how to do.",
+              "responseOptions": ["Having four legs", "Wagging its tail", "Fetching a ball", "Having fur"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-1-10",
+              "title": "Animal Offspring 2",
+              "type": "virtual",
+              "prompt": "Do all baby animals look exactly like their parents when they are born?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "Some animals are born looking like tiny versions of their parents. But some animals, like butterflies and frogs, look very different when they are young!",
+              "responseOptions": ["Yes, always", "No, some change a lot (like frogs)", "They look like different animals", "They are born as adults"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-1",
+              "title": "Metamorphosis",
+              "type": "virtual",
+              "prompt": "A caterpillar makes a chrysalis and changes inside. What is this amazing change called?",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
-              "responseOptions": ["Larva", "Pupa", "Adult", "Egg"],
+              "introText": "Some animals go through a complete change in their body form as they grow up. This incredible process has a special scientific name.",
+              "responseOptions": ["Hibernation", "Metamorphosis", "Migration", "Camouflage"],
               "correctAnswerIndex": 1
             },
             {
@@ -2539,10 +2818,8 @@ export const packData = {
               "prompt": "How do seeds from a dandelion travel to new places to grow?",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
-              "responseOptions": ["By floating on the wind", "By swimming in the ocean", "By sticking to animal fur", "By being eaten by birds"],
+              "introText": "Plants can't walk around to find new homes for their seeds. So, they have clever ways to send their seeds to new places. This is called seed dispersal.",
+              "responseOptions": ["By floating on the wind", "By swimming in the ocean", "By underground tunnels", "By car"],
               "correctAnswerIndex": 0
             },
             {
@@ -2552,11 +2829,86 @@ export const packData = {
               "prompt": "Which of these is something a bear learns, not something it is born with?",
               "grade": "2",
               "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": ["effort", "lifecyc"],
+              "introText": "An inherited trait is something an animal is born with, like its claws. A learned behavior is a skill it picks up by watching others or practicing.",
               "responseOptions": ["Having fur", "Catching fish in a river", "Having sharp claws", "Hibernating in winter"],
               "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-4",
+              "title": "Pollination",
+              "type": "virtual",
+              "prompt": "What do bees help plants do when they fly from flower to flower?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "Flowers need help to make seeds. They need to share tiny grains called pollen with other flowers. Flying insects like bees are a huge help with this job!",
+              "responseOptions": ["Make honey", "Pollinate them to make seeds", "Give them water", "Keep them warm"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-5",
+              "title": "Seed Dispersal 2",
+              "type": "virtual",
+              "prompt": "A squirrel buries an acorn and forgets it. How does this help the oak tree?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "Animals can also help plants spread their seeds. Sometimes they eat a fruit and drop the seed far away. Other times, they help without even meaning to!",
+              "responseOptions": ["It feeds the squirrel.", "It helps a new oak tree grow in a new spot.", "It cleans the forest floor.", "It stops other trees from growing."],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-6",
+              "title": "Complete vs. Incomplete Metamorphosis",
+              "type": "virtual",
+              "prompt": "Which animal goes through a complete metamorphosis (egg, larva, pupa, adult)?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "There are two types of metamorphosis. In 'complete' metamorphosis, the baby (larva) looks totally different from the adult. In 'incomplete' metamorphosis, the baby (nymph) looks like a small version of the adult.",
+              "responseOptions": ["A dog", "A grasshopper", "A butterfly", "A human"],
+              "correctAnswerIndex": 2
+            },
+            {
+              "id": "sc-lifecyc-2-7",
+              "title": "Germination",
+              "type": "virtual",
+              "prompt": "What is the name for when a seed starts to sprout and grow?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "A seed can wait for a long time until the conditions are just right. When it has enough water and warmth, it 'wakes up' and begins to grow. This process has a scientific name.",
+              "responseOptions": ["Photosynthesis", "Germination", "Pollination", "Decomposition"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-8",
+              "title": "Ecosystem Roles",
+              "type": "virtual",
+              "prompt": "In a forest, what is the role of a plant?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "In an ecosystem, every living thing has a job. Plants are called 'producers' because they do something that no animal can do.",
+              "responseOptions": ["It produces its own food.", "It consumes other animals.", "It breaks down dead material.", "It provides shelter only."],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-lifecyc-2-9",
+              "title": "Adaptations",
+              "type": "virtual",
+              "prompt": "Why does a polar bear have thick white fur?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "Animals have special features, or 'adaptations,' that help them survive in their environment. These features can help them find food, stay warm, or hide from predators.",
+              "responseOptions": ["To look stylish.", "To help it stay warm and blend in with the snow.", "To help it swim faster.", "To make it easy to see."],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-lifecyc-2-10",
+              "title": "Inherited vs. Learned 2",
+              "type": "virtual",
+              "prompt": "Which of these is an inherited trait in humans?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "Remember, inherited traits are passed down from your parents through genes. Learned behaviors are skills you get through practice and experience.",
+              "responseOptions": ["Speaking Spanish", "Being good at soccer", "Having naturally curly hair", "Knowing how to cook"],
+              "correctAnswerIndex": 2
             }
           ]
         }
@@ -2677,10 +3029,11 @@ export const packData = {
               "id": "ss-geog-1-1",
               "title": "Map Key",
               "type": "virtual",
-              "prompt": "Sophia, choose the meaning of a blue line.",
+              "prompt": "Sophia, look at the map shown. On a map key, what does the blue line usually mean?",
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "neighborhood-map" },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -2698,10 +3051,11 @@ export const packData = {
               "id": "ss-geog-1-2",
               "title": "Route",
               "type": "virtual",
-              "prompt": "Sophia, choose the shortest route from home to school.",
+              "prompt": "Sophia, look at the map. Choose the shortest route from Home to the School.",
               "grade": "1",
               "scoring": "auto",
               "timerRequired": true,
+              "visual": { "type": "neighborhood-map" },
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": [
                 "effort",
@@ -4297,417 +4651,3 @@ export const packData = {
               "scoring": "manual",
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ]
-            },
-            {
-              "id": "ef-cogflex-2-1",
-              "title": "Switch Strategy",
-              "type": "virtual",
-              "prompt": "Sophia, math too hard; choose next step.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ],
-              "responseOptions": [
-                "Quit",
-                "Hide work",
-                "Try a simpler problem",
-                "Get angry"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-cogflex-2-2",
-              "title": "Multiple Rules",
-              "type": "virtual",
-              "prompt": "Sophia, even numbers get circles, odd get squares; choose for 7.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ],
-              "responseOptions": [
-                "Star",
-                "Square",
-                "Triangle",
-                "Circle"
-              ],
-              "correctAnswerIndex": 1
-            },
-            {
-              "id": "ef-cogflex-2-3",
-              "title": "Perspective Shift",
-              "type": "virtual",
-              "prompt": "Sophia, friend can’t play; choose a flexible choice.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ],
-              "responseOptions": [
-                "Do nothing",
-                "Leave",
-                "Draw or read",
-                "Complain"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-cogflex-2-4",
-              "title": "Re-Order",
-              "type": "virtual",
-              "prompt": "Sophia, choose new order to finish chores quickly.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ],
-              "responseOptions": [
-                "Skip all",
-                "Don’t plan",
-                "Start with longest",
-                "Start with quickest task"
-              ],
-              "correctAnswerIndex": 3
-            },
-            {
-              "id": "ef-cogflex-2-5",
-              "title": "Reflect Flex",
-              "type": "recording",
-              "prompt": "Sophia, share one time you switched plans; mark complete.",
-              "grade": "2",
-              "scoring": "manual",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "cogflex"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Self-Monitoring",
-          "levels": {
-            "Foundations": [],
-            "Growth": [],
-            "Secure": []
-          },
-          "activities": [],
-          "items": [
-            {
-              "id": "ef-selfmon-K-1",
-              "title": "Check Backpack",
-              "type": "virtual",
-              "prompt": "Sophia, choose what to check before leaving.",
-              "grade": "K",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Folder",
-                "Rock",
-                "Socks",
-                "Banana peel"
-              ],
-              "correctAnswerIndex": 0
-            },
-            {
-              "id": "ef-selfmon-K-2",
-              "title": "Clean Spot",
-              "type": "virtual",
-              "prompt": "Sophia, choose a tidy desk.",
-              "grade": "K",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Desk B",
-                "Desk C",
-                "None",
-                "Desk A"
-              ],
-              "correctAnswerIndex": 3
-            },
-            {
-              "id": "ef-selfmon-K-3",
-              "title": "Feelings Check",
-              "type": "virtual",
-              "prompt": "Sophia, choose how you feel now.",
-              "grade": "K",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Invisible",
-                "Spiky",
-                "Calm",
-                "Robot"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-selfmon-K-4",
-              "title": "Ask for Help",
-              "type": "virtual",
-              "prompt": "Sophia, choose a way to ask for help.",
-              "grade": "K",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Throw",
-                "Yell",
-                "Raise hand",
-                "Leave"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-selfmon-K-5",
-              "title": "Show Work",
-              "type": "offline",
-              "prompt": "Sophia, show your work to an adult; mark complete.",
-              "grade": "K",
-              "scoring": "manual",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ]
-            },
-            {
-              "id": "ef-selfmon-1-1",
-              "title": "Fix Mistake",
-              "type": "virtual",
-              "prompt": "Sophia, choose what to do after finding a mistake.",
-              "grade": "1",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Hide it",
-                "Rip page",
-                "Erase and try again",
-                "Ignore"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-selfmon-1-2",
-              "title": "Rubric Use",
-              "type": "virtual",
-              "prompt": "Sophia, choose a rubric step.",
-              "grade": "1",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Check weather",
-                "Check wall",
-                "Check punctuation",
-                "Check shoes"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-selfmon-1-3",
-              "title": "Timer Check",
-              "type": "virtual",
-              "prompt": "Sophia, choose what a halfway beep means.",
-              "grade": "1",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Time to check progress",
-                "Start now",
-                "Take a nap",
-                "Stop now"
-              ],
-              "correctAnswerIndex": 0
-            },
-            {
-              "id": "ef-selfmon-1-4",
-              "title": "Neatness",
-              "type": "virtual",
-              "prompt": "Sophia, choose the neater handwriting sample.",
-              "grade": "1",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Equal",
-                "None",
-                "Sample B",
-                "Sample A"
-              ],
-              "correctAnswerIndex": 3
-            },
-            {
-              "id": "ef-selfmon-1-5",
-              "title": "Peer Check",
-              "type": "offline",
-              "prompt": "Sophia, swap papers with adult and review; mark complete.",
-              "grade": "1",
-              "scoring": "manual",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ]
-            },
-            {
-              "id": "ef-selfmon-2-1",
-              "title": "Goal Review",
-              "type": "virtual",
-              "prompt": "Sophia, choose what to do if goal not met.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Adjust the plan",
-                "Blame others",
-                "Hide",
-                "Give up"
-              ],
-              "correctAnswerIndex": 0
-            },
-            {
-              "id": "ef-selfmon-2-2",
-              "title": "Double-Check",
-              "type": "virtual",
-              "prompt": "Sophia, choose what to double-check in math.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "Shoelaces",
-                "Marker color",
-                "Regrouping",
-                "Lunch"
-              ],
-              "correctAnswerIndex": 2
-            },
-            {
-              "id": "ef-selfmon-2-3",
-              "title": "Proofread",
-              "type": "virtual",
-              "prompt": "Sophia, choose the sentence without errors.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "We’re going to the park.",
-                "We are go to the park.",
-                "Were going to the park.",
-                "We going to the park"
-              ],
-              "correctAnswerIndex": 0
-            },
-            {
-              "id": "ef-selfmon-2-4",
-              "title": "Time Estimate",
-              "type": "virtual",
-              "prompt": "Sophia, choose the best estimate to read 2 pages.",
-              "grade": "2",
-              "scoring": "auto",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ],
-              "responseOptions": [
-                "10 hours",
-                "5 minutes",
-                "30 seconds",
-                "1 hour"
-              ],
-              "correctAnswerIndex": 1
-            },
-            {
-              "id": "ef-selfmon-2-5",
-              "title": "Exit Ticket",
-              "type": "recording",
-              "prompt": "Sophia, tell one thing you learned; mark complete.",
-              "grade": "2",
-              "scoring": "manual",
-              "timerRequired": true,
-              "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
-              "successStickerTags": [
-                "effort",
-                "selfmon"
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-} as const;

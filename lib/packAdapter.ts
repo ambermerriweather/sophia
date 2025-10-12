@@ -1,3 +1,4 @@
+
 // lib/packAdapter.ts
 import { Domain, Activity, Grade } from '../types.ts';
 import { packData } from '../data/pack.ts';
@@ -26,6 +27,8 @@ const transformItemToActivity = (item: PackItem): Activity => {
     responseOptions: (item as any).responseOptions,
     correctAnswerIndex: (item as any).correctAnswerIndex,
     visual: (item as any).visual,
+    displayType: (item as any).displayType,
+    introText: (item as any).introText
   };
 };
 
@@ -84,10 +87,14 @@ const groupFluencyActivities = (subdomain: PackSubdomain): Activity[] => {
   // Separate fluency items from others
   for (const item of subdomain.items) {
     if (subdomain.name === 'Reading Fluency') {
-      if (!fluencyItems[item.grade as Grade]) {
-        fluencyItems[item.grade as Grade] = [];
-      }
-      fluencyItems[item.grade as Grade]?.push(item);
+       if (item.type === 'virtual') {
+            if (!fluencyItems[item.grade as Grade]) {
+                fluencyItems[item.grade as Grade] = [];
+            }
+            fluencyItems[item.grade as Grade]?.push(item);
+       } else {
+           otherItems.push(item);
+       }
     } else {
       otherItems.push(item);
     }
@@ -159,11 +166,7 @@ const groupGrammarActivities = (subdomain: PackSubdomain): Activity[] => {
   return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
 };
 
-/**
- * Groups virtual "Number Sense" items from the pack data into a single activity per grade.
- * @param subdomain The Number Sense subdomain from the pack.
- * @returns An array of activities, with virtual items grouped into a "Number Ninja" challenge.
- */
+
 const groupNumberSenseActivities = (subdomain: PackSubdomain): Activity[] => {
   const virtualItems: { [key in Grade]?: PackItem[] } = {};
   const otherItems: PackItem[] = [];
@@ -175,221 +178,276 @@ const groupNumberSenseActivities = (subdomain: PackSubdomain): Activity[] => {
       }
       virtualItems[item.grade as Grade]?.push(item);
     } else {
-      otherItems.push(item);
+        otherItems.push(item);
     }
   }
-
   const groupedActivities: Activity[] = [];
-
   for (const grade in virtualItems) {
-    const items = virtualItems[grade as Grade]!;
-    if (items.length > 0) {
-      groupedActivities.push({
-        id: `grouped-numsense-${grade}`,
-        name: 'Number Ninja Challenge',
-        prompt: `Let's test your number skills, Sophia! Complete these challenges to become a Number Ninja.`,
-        grade: grade as Grade,
-        type: 'virtual',
-        isGrouped: true,
-        displayType: 'number-ninja',
-        subItems: items.map(transformItemToActivity),
-      });
-    }
+      const items = virtualItems[grade as Grade]!;
+      if (items.length > 0) {
+          groupedActivities.push({
+              id: `grouped-numsense-${grade}`,
+              name: 'Number Ninja Challenge 🥷',
+              prompt: "Welcome, Number Ninja! Let's test your math skills. Answer the questions on the screen to show what a math whiz you are!",
+              grade: grade as Grade,
+              type: 'virtual',
+              isGrouped: true,
+              displayType: 'number-ninja',
+              subItems: items.map(transformItemToActivity)
+          });
+      }
   }
-
   return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
 };
 
-/**
- * Groups virtual "Measurement & Data" items into separate activities for measurement and data analysis.
- * @param subdomain The Measurement & Data subdomain.
- * @returns An array of activities, with measurement and data questions grouped separately.
- */
+
 const groupMeasurementDataActivities = (subdomain: PackSubdomain): Activity[] => {
-  const measurementItems: { [key in Grade]?: PackItem[] } = {};
-  const dataItems: { [key in Grade]?: PackItem[] } = {};
-  const otherItems: PackItem[] = [];
+    const measurementItems: { [key in Grade]?: PackItem[] } = {};
+    const dataItems: { [key in Grade]?: PackItem[] } = {};
+    const otherItems: PackItem[] = [];
+    const dataKeywords = ['graph', 'plot'];
 
-  for (const item of subdomain.items) {
-    if (item.type === 'virtual') {
-      // Check if the item is data-related (bar chart or line plot)
-      if ((item as any).visual?.type === 'bar-chart' || (item as any).title?.includes('Line Plot')) {
-        if (!dataItems[item.grade as Grade]) dataItems[item.grade as Grade] = [];
-        dataItems[item.grade as Grade]?.push(item);
-      } else {
-        if (!measurementItems[item.grade as Grade]) measurementItems[item.grade as Grade] = [];
-        measurementItems[item.grade as Grade]?.push(item);
-      }
-    } else {
-      otherItems.push(item);
+    for (const item of subdomain.items) {
+        if (item.type === 'virtual') {
+            const isDataItem = dataKeywords.some(kw => item.title.toLowerCase().includes(kw));
+            if (isDataItem) {
+                if (!dataItems[item.grade as Grade]) dataItems[item.grade as Grade] = [];
+                dataItems[item.grade as Grade]?.push(item);
+            } else {
+                if (!measurementItems[item.grade as Grade]) measurementItems[item.grade as Grade] = [];
+                measurementItems[item.grade as Grade]?.push(item);
+            }
+        } else {
+            otherItems.push(item);
+        }
     }
-  }
 
-  const groupedActivities: Activity[] = [];
-
-  // Group pure measurement items
-  for (const grade in measurementItems) {
-    const items = measurementItems[grade as Grade]!;
-    if (items.length > 0) {
-      groupedActivities.push({
-        id: `grouped-meas-${grade}`,
-        name: 'Measurement Master Mission',
-        prompt: `Time for a Measurement Master Mission, Sophia! We'll explore time, money, and more.`,
-        grade: grade as Grade,
-        type: 'virtual',
-        isGrouped: true,
-        displayType: 'measurement-master',
-        subItems: items.map(transformItemToActivity),
-      });
+    const groupedActivities: Activity[] = [];
+    for (const grade in measurementItems) {
+        const items = measurementItems[grade as Grade]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-measdata-${grade}`,
+                name: 'Measurement Master Mission 📏',
+                prompt: "Get your rulers ready, Measurement Master! It's time to explore size, time, and money. Answer the questions to complete your mission.",
+                grade: grade as Grade,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'measurement-master',
+                subItems: items.map(transformItemToActivity)
+            });
+        }
     }
-  }
-  
-  // Group data analysis items
-  for (const grade in dataItems) {
-    const items = dataItems[grade as Grade]!;
-    if (items.length > 0) {
-      groupedActivities.push({
-        id: `grouped-data-${grade}`,
-        name: 'Data Detective',
-        prompt: `Time to be a Data Detective, Sophia! Look at the graphs and charts to solve the puzzles.`,
-        grade: grade as Grade,
-        type: 'virtual',
-        isGrouped: true,
-        displayType: 'data-detective',
-        subItems: items.map(transformItemToActivity),
-      });
+     for (const grade in dataItems) {
+        const items = dataItems[grade as Grade]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-datadetective-${grade}`,
+                name: 'Data Detective 📊',
+                prompt: "Put on your detective hat! It's time to look at charts and graphs to find the hidden clues in the data.",
+                grade: grade as Grade,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'data-detective',
+                subItems: items.map(transformItemToActivity)
+            });
+        }
     }
-  }
 
-  return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+    return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
 };
 
-/**
- * Groups virtual "Inquiry & Observation" items from Science into a single activity per grade.
- * @param subdomain The Inquiry & Observation subdomain.
- * @returns An array of activities, with virtual items grouped into a "Science Explorer" mission.
- */
+
 const groupScienceActivities = (subdomain: PackSubdomain): Activity[] => {
-  const virtualItems: { [key in Grade]?: PackItem[] } = {};
-  const otherItems: PackItem[] = [];
+    const virtualItems: { [key in Grade]?: PackItem[] } = {};
+    const otherItems: PackItem[] = [];
 
-  for (const item of subdomain.items) {
-    if (item.type === 'virtual') {
-      if (!virtualItems[item.grade as Grade]) {
-        virtualItems[item.grade as Grade] = [];
-      }
-      virtualItems[item.grade as Grade]?.push(item);
-    } else {
-      otherItems.push(item);
+    for (const item of subdomain.items) {
+        if (item.type === 'virtual' && (item as any).displayType !== 'sink-or-swim') {
+            if (!virtualItems[item.grade as Grade]) {
+                virtualItems[item.grade as Grade] = [];
+            }
+            virtualItems[item.grade as Grade]?.push(item);
+        } else {
+            otherItems.push(item);
+        }
     }
-  }
 
-  const groupedActivities: Activity[] = [];
+    const introTexts: Record<Grade, string> = {
+        'K': "Science is all about exploring! We use our five senses—sight, hearing, smell, taste, and touch—to observe the world. Let's find out what it means for something to be living or non-living.",
+        '1': "Let's be scientists! A scientist makes a special kind of guess called a 'hypothesis' (like 'If I do this, then that will happen'). We use tools like thermometers and scales to measure things and record what we find.",
+        '2': "Time for an investigation! To do good science, we need to ask 'testable questions'—questions we can answer by doing an experiment. When we do an experiment, we only change one thing at a time to keep it fair. Let's explore!"
+    };
 
-  for (const grade in virtualItems) {
-    const items = virtualItems[grade as Grade]!;
-    if (items.length > 0) {
-      groupedActivities.push({
-        id: `grouped-science-${grade}`,
-        name: 'Science Explorer Mission',
-        prompt: `Let's be Science Explorers, Sophia! We will observe, ask questions, and make predictions.`,
-        grade: grade as Grade,
-        type: 'virtual',
-        isGrouped: true,
-        displayType: 'science-explorer',
-        subItems: items.map(transformItemToActivity),
-      });
+    const groupedActivities: Activity[] = [];
+    for (const grade in virtualItems) {
+        const g = grade as Grade;
+        const items = virtualItems[g]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-science-inquiry-${g}`,
+                name: 'Science Explorer Mission',
+                prompt: "Put on your lab coat, Science Explorer! It's time to observe, predict, and discover. Answer the questions to complete your scientific mission.",
+                grade: g,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'science-explorer',
+                subItems: items.map(transformItemToActivity),
+                introText: introTexts[g] || ''
+            });
+        }
     }
-  }
-
-  return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+    return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
 };
 
-/**
- * Groups virtual "Life Cycles" items from Science into a single activity per grade.
- * @param subdomain The Life Cycles subdomain.
- * @returns An array of activities, with virtual items grouped into a "Life Cycles Lab" mission.
- */
+
 const groupLifeCyclesActivities = (subdomain: PackSubdomain): Activity[] => {
-  const virtualItems: { [key in Grade]?: PackItem[] } = {};
-  const otherItems: PackItem[] = [];
+    const virtualItems: { [key in Grade]?: PackItem[] } = {};
+    const otherItems: PackItem[] = [];
 
-  for (const item of subdomain.items) {
-    if (item.type === 'virtual') {
-      if (!virtualItems[item.grade as Grade]) {
-        virtualItems[item.grade as Grade] = [];
-      }
-      virtualItems[item.grade as Grade]?.push(item);
-    } else {
-      otherItems.push(item);
+    for (const item of subdomain.items) {
+        if (item.type === 'virtual') {
+            if (!virtualItems[item.grade as Grade]) {
+                virtualItems[item.grade as Grade] = [];
+            }
+            virtualItems[item.grade as Grade]?.push(item);
+        } else {
+            otherItems.push(item);
+        }
     }
-  }
-
-  const groupedActivities: Activity[] = [];
-
-  for (const grade in virtualItems) {
-    const items = virtualItems[grade as Grade]!;
-    if (items.length > 0) {
-      groupedActivities.push({
-        id: `grouped-lifecyc-${grade}`,
-        name: 'Life Cycles Lab',
-        prompt: `Welcome to the Life Cycles Lab, Sophia! Let's learn about how plants and animals grow and change.`,
-        grade: grade as Grade,
-        type: 'virtual',
-        isGrouped: true,
-        displayType: 'life-cycles-lab',
-        subItems: items.map(transformItemToActivity),
-      });
+    // FIX: Complete the function implementation to group life cycle activities and return a value.
+    const groupedActivities: Activity[] = [];
+    for (const grade in virtualItems) {
+        const g = grade as Grade;
+        const items = virtualItems[g]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-lifecycles-${g}`,
+                name: 'Life Cycles Lab 🌱',
+                prompt: "Welcome to the Life Cycles Lab! Let's explore how living things grow and change, from tiny seeds to big plants and from eggs to butterflies. Answer the questions to show what you know!",
+                grade: g,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'life-cycles-lab',
+                subItems: items.map(transformItemToActivity)
+            });
+        }
     }
-  }
+    return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+};
 
-  return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+const groupGeographyActivities = (subdomain: PackSubdomain): Activity[] => {
+    const virtualItems: { [key in Grade]?: PackItem[] } = {};
+    const otherItems: PackItem[] = [];
+
+    for (const item of subdomain.items) {
+        if (item.type === 'virtual') {
+            if (!virtualItems[item.grade as Grade]) virtualItems[item.grade as Grade] = [];
+            virtualItems[item.grade as Grade]?.push(item);
+        } else {
+            otherItems.push(item);
+        }
+    }
+    const groupedActivities: Activity[] = [];
+    for (const grade in virtualItems) {
+        const g = grade as Grade;
+        const items = virtualItems[g]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-geography-${g}`,
+                name: 'Geography Quest',
+                prompt: "Let's explore our world! Answer questions about maps, places, and how we find our way around.",
+                grade: g,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'community-quest',
+                subItems: items.map(transformItemToActivity)
+            });
+        }
+    }
+    return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+};
+
+const groupCivicsActivities = (subdomain: PackSubdomain): Activity[] => {
+    const virtualItems: { [key in Grade]?: PackItem[] } = {};
+    const otherItems: PackItem[] = [];
+
+    for (const item of subdomain.items) {
+        if (item.type === 'virtual') {
+            if (!virtualItems[item.grade as Grade]) virtualItems[item.grade as Grade] = [];
+            virtualItems[item.grade as Grade]?.push(item);
+        } else {
+            otherItems.push(item);
+        }
+    }
+    const groupedActivities: Activity[] = [];
+    for (const grade in virtualItems) {
+        const g = grade as Grade;
+        const items = virtualItems[g]!;
+        if (items.length > 0) {
+            groupedActivities.push({
+                id: `grouped-civics-${g}`,
+                name: 'Community Quest',
+                prompt: "Our community is full of amazing people and important rules. Let's learn about them!",
+                grade: g,
+                type: 'virtual',
+                isGrouped: true,
+                displayType: 'community-quest',
+                subItems: items.map(transformItemToActivity)
+            });
+        }
+    }
+    return [...groupedActivities, ...otherItems.map(transformItemToActivity)];
+};
+
+/**
+ * Processes a single subdomain, applying grouping logic where applicable.
+ * @param subdomain - The subdomain to process.
+ * @returns An array of activities.
+ */
+const processSubdomain = (subdomain: PackSubdomain): Activity[] => {
+  switch (subdomain.name) {
+    case 'Reading Comprehension':
+      return groupComprehensionActivities(subdomain);
+    case 'Reading Fluency':
+      return groupFluencyActivities(subdomain);
+    case 'Writing & Grammar':
+      return groupGrammarActivities(subdomain);
+    case 'Number Sense':
+      return groupNumberSenseActivities(subdomain);
+    case 'Measurement & Data':
+      return groupMeasurementDataActivities(subdomain);
+    case 'Inquiry & Observation':
+      return groupScienceActivities(subdomain);
+    case 'Life Cycles':
+      return groupLifeCyclesActivities(subdomain);
+    case 'Geography':
+        return groupGeographyActivities(subdomain);
+    case 'Civics & Community':
+        return groupCivicsActivities(subdomain);
+    default:
+      // For subdomains without special grouping, just transform each item.
+      return subdomain.items.map(transformItemToActivity);
+  }
 };
 
 
 /**
- * Adapts the raw, deeply nested pack data into a flat array of Domains,
- * which is easier for the UI components to consume.
- * @param data - The raw packData object.
+ * Adapts the raw pack data into the Domain[] structure used by the UI.
+ * This function iterates through domains and subdomains, applying specific grouping
+ * logic to bundle related items into single, cohesive activities.
+ * @param pack - The raw pack data.
  * @returns An array of Domain objects.
  */
-export const adaptPackToDomains = (data: Pack): Domain[] => {
-  return data.domains.map((domain: PackDomain) => {
+// FIX: Export the adaptPackToDomains function to make it available for import in other modules, resolving the error in constants.ts.
+export const adaptPackToDomains = (pack: Pack): Domain[] => {
+  return pack.domains.map(domain => {
+    const allActivities = domain.subdomains.flatMap(processSubdomain);
+
     const domainKey = domain.name
       .toLowerCase()
-      .replace(/ & /g, '-&-')
+      .replace(/ & /g, '-')
       .replace(/ /g, '-');
-    
-    const allActivities: Activity[] = domain.subdomains.flatMap(subdomain => {
-      if (domain.name === 'Reading & Language Arts') {
-        if (subdomain.name === 'Reading Comprehension') {
-          return groupComprehensionActivities(subdomain);
-        }
-        if (subdomain.name === 'Reading Fluency') {
-          return groupFluencyActivities(subdomain);
-        }
-        if (subdomain.name === 'Writing & Grammar') {
-          return groupGrammarActivities(subdomain);
-        }
-      }
-      if (domain.name === 'Mathematics') {
-        if (subdomain.name === 'Number Sense') {
-          return groupNumberSenseActivities(subdomain);
-        }
-        if (subdomain.name === 'Measurement & Data') {
-          return groupMeasurementDataActivities(subdomain);
-        }
-      }
-      if (domain.name === 'Science') {
-        if (subdomain.name === 'Inquiry & Observation') {
-            return groupScienceActivities(subdomain);
-        }
-        if (subdomain.name === 'Life Cycles') {
-            return groupLifeCyclesActivities(subdomain);
-        }
-      }
-      return subdomain.items.map(transformItemToActivity);
-    });
 
     return {
       key: domainKey,

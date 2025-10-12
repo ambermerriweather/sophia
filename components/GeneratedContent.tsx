@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../../types.ts';
@@ -42,19 +43,59 @@ const Clock: React.FC<{ time: string }> = ({ time }) => {
 const BarChart: React.FC<{ data: BarChartData[] }> = ({ data }) => {
   const maxValue = Math.max(...data.map(d => d.value), 0);
   return (
-    <div className="flex justify-center items-end gap-4 h-48 p-4 bg-slate-50 rounded-lg border">
-      {data.map(item => (
-        <div key={item.label} className="flex flex-col items-center gap-2">
+    <div className="w-full flex justify-around items-end gap-4 h-48 p-4 bg-slate-50 rounded-lg border">
+      {data.map((item, index) => (
+        <div key={item.label} className="flex flex-col items-center gap-2 h-full justify-end">
+          <div className="text-sm font-bold text-slate-700">{item.value}</div>
           <div
-            className="w-12 bg-blue-400 rounded-t-md"
-            style={{ height: `${(item.value / maxValue) * 100}%` }}
+            className="w-12 bg-blue-400 rounded-t-md transition-all duration-700 ease-out"
+            style={{ height: `${(item.value / maxValue) * 100}%`, animation: `growBar 0.5s ${index * 100}ms ease-out forwards`, transformOrigin: 'bottom', transform: 'scaleY(0)' }}
           />
-          <span className="text-sm font-semibold">{item.label} ({item.value})</span>
+          <span className="text-sm font-semibold text-center">{item.label}</span>
         </div>
       ))}
+       <style>{`
+        @keyframes growBar {
+          from { transform: scaleY(0); }
+          to { transform: scaleY(1); }
+        }
+      `}</style>
     </div>
   );
 };
+
+const LinePlot: React.FC<{ data: { value: number; count: number }[], unit: string }> = ({ data, unit }) => {
+    const min = Math.min(...data.map(d => d.value));
+    const max = Math.max(...data.map(d => d.value));
+    const range = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    
+    return (
+        <div className="w-full px-4 py-8">
+            <div className="relative h-20">
+                {data.map(item => (
+                    <div key={item.value} className="absolute bottom-6 flex flex-col items-center" style={{ left: `${((item.value - min) / (max - min)) * 100}%` }}>
+                        {Array.from({ length: item.count }).map((_, i) => (
+                            <span key={i} className="text-blue-500 font-bold text-xl leading-none">X</span>
+                        ))}
+                    </div>
+                ))}
+            </div>
+            <div className="relative h-1 bg-slate-300 rounded-full mt-2">
+                {range.map(num => {
+                    const position = ((num - min) / (max - min)) * 100;
+                    return (
+                        <div key={num} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${position}%` }}>
+                            <div className="w-0.5 h-2 bg-slate-400"></div>
+                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm font-semibold">{num}</span>
+                        </div>
+                    )
+                })}
+            </div>
+             <p className="text-center text-sm font-semibold mt-8">Length in {unit}</p>
+        </div>
+    );
+};
+
 
 const Coins: React.FC<{ coins: Coin[] }> = ({ coins }) => {
     const coinMap: Record<Coin, { symbol: string, color: string }> = {
@@ -163,6 +204,29 @@ const NumberLine: React.FC<{ min: number; max: number; highlight?: number; }> = 
     );
 };
 
+const NeighborhoodMap: React.FC = () => (
+    <div className="w-full max-w-sm mx-auto p-2 bg-green-100 border-2 border-green-300 rounded-lg aspect-square grid grid-cols-3 grid-rows-3 gap-2 relative">
+        {/* Locations */}
+        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🏠</span><span className="text-xs font-bold">Home</span></div>
+        <div />
+        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🏫</span><span className="text-xs font-bold">School</span></div>
+        <div />
+        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🌳</span><span className="text-xs font-bold">Park</span></div>
+        <div />
+        <div className="col-span-3 bg-blue-300 rounded-md flex items-center justify-center"><span className="font-bold text-blue-800">River</span></div>
+
+        {/* Roads */}
+        <div className="absolute top-[16.66%] left-0 w-full h-px bg-gray-400" />
+        <div className="absolute top-[50%] left-0 w-full h-px bg-gray-400" />
+        <div className="absolute top-0 left-[33.33%] h-2/3 w-px bg-gray-400" />
+        <div className="absolute top-0 left-[66.66%] h-2/3 w-px bg-gray-400" />
+
+        {/* Routes */}
+        <div className="absolute top-[8%] left-[40%] text-red-600 font-bold text-sm">Route A</div>
+        <div className="absolute top-[40%] left-[5%] text-purple-600 font-bold text-sm">Route B</div>
+    </div>
+)
+
 
 const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }) => {
   return (
@@ -173,6 +237,8 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
             return <div className="text-5xl flex flex-wrap gap-2 justify-center">{Array.from({ length: visual.count }, (_, i) => <span key={i}>{visual.item === 'apple' ? '🍎' : '⚫️'}</span>)}</div>;
           case 'bar-chart':
             return <BarChart data={visual.data} />;
+          case 'line-plot':
+            return <LinePlot data={visual.data} unit={visual.unit} />;
           case 'clock-face':
             return <Clock time={visual.time} />;
           case 'clocks':
@@ -194,6 +260,8 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
             return <BaseTenBlocks numbers={visual.numbers} />
           case 'number-line':
             return <NumberLine min={visual.min} max={visual.max} highlight={visual.highlight} />
+          case 'neighborhood-map':
+            return <NeighborhoodMap />;
           default:
             return null;
         }
@@ -850,6 +918,12 @@ const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, se
       border: 'border-lime-200',
       text: 'text-lime-900',
     },
+    'community-quest': {
+        title: '🗺️ Community Quest',
+        bg: 'bg-orange-50/50',
+        border: 'border-orange-200',
+        text: 'text-orange-900',
+    }
   }
   const config = headerConfig[activity.displayType as keyof typeof headerConfig] || headerConfig['number-ninja'];
 
@@ -858,6 +932,18 @@ const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, se
       <div className={`p-4 ${config.bg} ${config.border} rounded-lg`}>
         <h3 className={`text-lg font-bold ${config.text}`}>{config.title}</h3>
       </div>
+
+      {activity.introText && (
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg prose prose-slate max-w-none">
+            <p>{activity.introText}</p>
+        </div>
+      )}
+
+      {currentSubItem.introText && (
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg prose prose-slate max-w-none">
+            <p>{currentSubItem.introText}</p>
+        </div>
+      )}
 
       {currentSubItem.visual && <ActivityVisualRenderer visual={currentSubItem.visual} />}
 
@@ -965,6 +1051,133 @@ const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel,
   );
 };
 
+const SinkOrSwimContent: React.FC<GeneratedContentProps> = ({ activity, setModel, activityState, isReadOnly }) => {
+    const itemsByGrade = {
+        'K': [
+            { name: 'Leaf 🍃', sinks: false }, { name: 'Rock 🪨', sinks: true }, { name: 'Toy Car 🚗', sinks: true }, { name: 'Crayon 🖍️', sinks: true },
+            { name: 'Feather 🪶', sinks: false }, { name: 'Rubber Duck 🦆', sinks: false }, { name: 'Key 🔑', sinks: true }, { name: 'Apple Slice 🍎', sinks: false },
+            { name: 'Spoon (metal) 🥄', sinks: true }, { name: 'Lego block 🧱', sinks: false }
+        ],
+        '1': [
+            { name: 'Penny 🪙', sinks: true }, { name: 'Popsicle Stick 🏒', sinks: false }, { name: 'Rubber Band', sinks: true }, { name: 'Paper Clip 📎', sinks: true },
+            { name: 'Bottle Cap (plastic) 🧢', sinks: false }, { name: 'Marble', sinks: true }, { name: 'Cork', sinks: false }, { name: 'Button', sinks: true },
+            { name: 'Sponge (dry) 🧽', sinks: false }, { name: 'Eraser', sinks: true }
+        ],
+        '2': [
+            { name: 'Wood Stick 🪵', sinks: false }, { name: 'Orange (peeled) 🍊', sinks: true }, { name: 'Gummy Bear 🍬', sinks: true }, { name: 'Screw 🔩', sinks: true },
+            { name: 'Chalk', sinks: true }, { name: 'Ping Pong Ball', sinks: false }, { name: 'Quarter 🪙', sinks: true }, { name: 'Wax Crayon 🖍️', sinks: false },
+            { name: 'Ice Cube 🧊', sinks: false }, { name: 'Grape 🍇', sinks: true }
+        ]
+    };
+    
+    const items = itemsByGrade[activity.grade] || itemsByGrade['K'];
+    
+    const [stage, setStage] = useState<'predict' | 'test'>('predict');
+    const [predictions, setPredictions] = useState<Record<string, 'sink' | 'swim'>>({});
+
+    const handlePrediction = (itemName: string, prediction: 'sink' | 'swim') => {
+        setPredictions(prev => ({ ...prev, [itemName]: prediction }));
+    };
+
+    const handleTestResult = (itemName: string, actualSinks: boolean, prediction: 'sink' | 'swim') => {
+        const predictionWasCorrect = (prediction === 'sink' && actualSinks) || (prediction === 'swim' && !actualSinks);
+        setModel(prev => {
+            const currentAnswers = prev.activity[activity.id]?.answers || {};
+            return {
+                ...prev,
+                activity: {
+                    ...prev.activity,
+                    [activity.id]: {
+                        ...prev.activity[activity.id],
+                        answers: { ...currentAnswers, [itemName]: { answerIndex: predictionWasCorrect ? 1 : 0, correct: predictionWasCorrect } }
+                    }
+                }
+            }
+        });
+    };
+
+    const allPredicted = Object.keys(predictions).length === items.length;
+    const allTested = Object.keys(activityState.answers || {}).length === items.length;
+    
+    const introContent = (
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-left prose prose-slate max-w-none mb-4">
+        <p>Let's be scientists! Some things are heavy for their size, and they sink. Others are light for their size, and they float! This is because of something called <strong>density</strong>.</p>
+        <h4 className="font-bold">What You'll Need:</h4>
+        <ul className="text-sm">
+            <li>A big bowl, bucket, or sink filled with water</li>
+            <li>The items listed below (or similar household objects)</li>
+            <li>A towel for easy cleanup!</li>
+        </ul>
+      </div>
+    );
+
+    if (stage === 'predict') {
+        return (
+            <div className="space-y-4">
+                <div className="p-4 bg-cyan-50/50 border border-cyan-200 rounded-lg">
+                    <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Part 1: Predict)</h3>
+                    <p className="text-sm">First, make your hypothesis (your scientific guess) for each item. Will it sink or swim?</p>
+                </div>
+                {introContent}
+                <div className="space-y-2">
+                    {items.map(item => (
+                        <div key={item.name} className="flex justify-between items-center bg-white p-2 rounded-lg border">
+                            <span className="font-semibold text-lg">{item.name}</span>
+                            <div className="flex gap-2">
+                                <Button size="sm" variant={predictions[item.name] === 'sink' ? 'default' : 'outline'} className={predictions[item.name] === 'sink' ? 'bg-slate-700' : ''} onClick={() => handlePrediction(item.name, 'sink')} disabled={isReadOnly}>Sink</Button>
+                                <Button size="sm" variant={predictions[item.name] === 'swim' ? 'default' : 'outline'} className={predictions[item.name] === 'swim' ? 'bg-sky-500' : ''} onClick={() => handlePrediction(item.name, 'swim')} disabled={isReadOnly}>Swim</Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                {allPredicted && (
+                    <Button onClick={() => setStage('test')} className="w-full">
+                        All Done! Let's Test! <ArrowRight className="w-4 h-4 ml-2"/>
+                    </Button>
+                )}
+            </div>
+        );
+    }
+    
+    if (stage === 'test') {
+         return (
+            <div className="space-y-4">
+                <div className="p-4 bg-cyan-50/50 border border-cyan-200 rounded-lg">
+                    <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Part 2: Test)</h3>
+                    <p className="text-sm">Now, get a bowl of water and test each item. Was your prediction correct?</p>
+                </div>
+                {introContent}
+                 <div className="space-y-2">
+                    {items.map(item => {
+                        const answer = activityState.answers?.[item.name];
+                        const prediction = predictions[item.name];
+                        if (!prediction) return null; // Should not happen
+                        return (
+                            <div key={item.name} className="flex justify-between items-center bg-white p-2 rounded-lg border">
+                                <div className="text-left">
+                                    <span className="font-semibold text-lg">{item.name}</span>
+                                    <div className="text-xs">You predicted: <span className="font-bold">{prediction}</span></div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleTestResult(item.name, item.sinks, prediction)} disabled={isReadOnly || !!answer}><ThumbsUp /></Button>
+                                    <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleTestResult(item.name, item.sinks, prediction)} disabled={isReadOnly || !!answer}><ThumbsDown /></Button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+                 {allTested && (
+                     <div className="p-4 text-center bg-green-100 rounded-lg">
+                        <p className="font-bold text-green-800">Great experiment, Scientist!</p>
+                    </div>
+                )}
+            </div>
+        );
+    }
+    
+    return null;
+}
+
 
 export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
     if (props.activity.displayType === 'story-time') {
@@ -979,7 +1192,11 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
         return <SentenceBuilderContent {...props} />
     }
 
-    if (['number-ninja', 'measurement-master', 'data-detective', 'science-explorer', 'life-cycles-lab'].includes(props.activity.displayType!)) {
+    if (props.activity.displayType === 'sink-or-swim') {
+        return <SinkOrSwimContent {...props} />
+    }
+
+    if (['number-ninja', 'measurement-master', 'data-detective', 'science-explorer', 'life-cycles-lab', 'community-quest'].includes(props.activity.displayType!)) {
         return <GroupedStaticMCQContent {...props} />
     }
     

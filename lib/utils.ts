@@ -59,8 +59,6 @@ export const averageDuration = (model: Model, domains: Domain[]): string => {
 };
 
 export const nextStepsForDomain = (domainKey: string): string[] => {
-    // FIX: Updated domain keys to match the dynamically generated keys from packAdapter.ts.
-    // Removed 'executive-functioning' as it's a subdomain and not directly accessible here.
     const suggestions: Record<string, string[]> = {
         'reading-&-language-arts': [
             "Read together daily, even for just 10 minutes.",
@@ -72,10 +70,15 @@ export const nextStepsForDomain = (domainKey: string): string[] => {
             "Find math in everyday life, like counting items at the store.",
             "Play board games that involve counting and moving spaces."
         ],
-        'social-emotional-&-executive-functioning': [
+        'social-emotional-learning': [
             "Name feelings as they happen: 'You seem frustrated.'",
             "Read books about emotions and talk about the characters.",
             "Model healthy ways to express your own feelings."
+        ],
+        'executive-functioning': [
+            "Use visual checklists for morning or evening routines.",
+            "Play memory games or 'I Spy' to boost working memory.",
+            "Break down big tasks into smaller, more manageable steps."
         ],
         'science': [
             "Go on a nature walk and identify living and non-living things.",
