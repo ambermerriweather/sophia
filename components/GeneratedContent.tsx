@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../../types.ts';
+import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../types.ts';
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight } from 'lucide-react';
 
@@ -205,27 +204,62 @@ const NumberLine: React.FC<{ min: number; max: number; highlight?: number; }> = 
 };
 
 const NeighborhoodMap: React.FC = () => (
-    <div className="w-full max-w-sm mx-auto p-2 bg-green-100 border-2 border-green-300 rounded-lg aspect-square grid grid-cols-3 grid-rows-3 gap-2 relative">
-        {/* Locations */}
-        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🏠</span><span className="text-xs font-bold">Home</span></div>
-        <div />
-        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🏫</span><span className="text-xs font-bold">School</span></div>
-        <div />
-        <div className="flex flex-col items-center justify-center bg-white/50 rounded-md"><span className="text-3xl">🌳</span><span className="text-xs font-bold">Park</span></div>
-        <div />
-        <div className="col-span-3 bg-blue-300 rounded-md flex items-center justify-center"><span className="font-bold text-blue-800">River</span></div>
+    <div className="w-full max-w-lg mx-auto p-2 bg-green-100 border-2 border-green-300 rounded-lg aspect-auto">
+        <svg viewBox="0 0 300 300" role="img" aria-label="A map of a neighborhood with a house, school, park, river, and compass.">
+            {/* Roads */}
+            <path d="M 50 0 V 300 M 250 0 V 300 M 0 100 H 300 M 0 200 H 300" stroke="#a0aec0" strokeWidth="8" />
+            
+            {/* River */}
+            <path d="M 150 0 V 300" stroke="#63b3ed" strokeWidth="12" />
+            <text x="155" y="15" fill="#2c5282" fontSize="10" fontWeight="bold">River</text>
+            
+            {/* Locations */}
+            <text x="10" y="30" fontSize="24">🏠</text>
+            <text x="5" y="50" fontSize="10" fontWeight="bold">Home</text>
+            
+            <text x="260" y="30" fontSize="24">🏫</text>
+            <text x="255" y="50" fontSize="10" fontWeight="bold">School</text>
+            
+            <text x="10" y="230" fontSize="24">🌳</text>
+            <text x="8" y="250" fontSize="10" fontWeight="bold">Park</text>
+            
+            {/* Routes - Updated to show multiple clear routes */}
+            <path d="M 30 55 C 100 150, 200 50, 270 55" stroke="red" strokeWidth="2.5" fill="none" strokeDasharray="4 2"/>
+            <text x="130" y="70" fill="red" fontSize="10" fontWeight="bold">Route A</text>
 
-        {/* Roads */}
-        <div className="absolute top-[16.66%] left-0 w-full h-px bg-gray-400" />
-        <div className="absolute top-[50%] left-0 w-full h-px bg-gray-400" />
-        <div className="absolute top-0 left-[33.33%] h-2/3 w-px bg-gray-400" />
-        <div className="absolute top-0 left-[66.66%] h-2/3 w-px bg-gray-400" />
-
-        {/* Routes */}
-        <div className="absolute top-[8%] left-[40%] text-red-600 font-bold text-sm">Route A</div>
-        <div className="absolute top-[40%] left-[5%] text-purple-600 font-bold text-sm">Route B</div>
+            <path d="M 30 55 V 150 H 270 V 55" stroke="purple" strokeWidth="2.5" fill="none" strokeDasharray="5 3"/>
+            <text x="130" y="130" fill="purple" fontSize="10" fontWeight="bold">Route B</text>
+            
+            {/* Compass Rose */}
+            <g transform="translate(275, 25)" stroke="#334155" strokeWidth="1" fill="#334155">
+                <path d="M 0 -15 L 5 0 L 0 5 L -5 0 Z" />
+                <path d="M 0 15 L 5 0 L 0 -5 L -5 0 Z" opacity="0.6"/>
+                <path d="M 15 0 L 0 5 L -5 0 L 0 -5 Z" opacity="0.6"/>
+                <path d="M -15 0 L 0 5 L 5 0 L 0 -5 Z" opacity="0.6"/>
+                <text x="0" y="-18" textAnchor="middle" fontSize="6" fontWeight="bold">N</text>
+                <text x="0" y="23" textAnchor="middle" fontSize="6" fontWeight="bold">S</text>
+                <text x="19" y="3" textAnchor="middle" fontSize="6" fontWeight="bold">E</text>
+                <text x="-19" y="3" textAnchor="middle" fontSize="6" fontWeight="bold">W</text>
+            </g>
+        </svg>
     </div>
-)
+);
+
+const CompassRose: React.FC = () => (
+  <div className="w-32 h-32 relative mx-auto">
+    <div className="absolute inset-0 flex items-center justify-center font-bold text-slate-700">
+      <span className="absolute top-0">N</span>
+      <span className="absolute bottom-0">S</span>
+      <span className="absolute left-0">W</span>
+      <span className="absolute right-0">E</span>
+    </div>
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      <polygon points="50,0 60,50 50,100 40,50" fill="#cbd5e1" />
+      <polygon points="0,50 50,60 100,50 50,40" fill="#e2e8f0" />
+      <circle cx="50" cy="50" r="10" fill="white" stroke="#94a3b8" strokeWidth="2"/>
+    </svg>
+  </div>
+);
 
 
 const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }) => {
@@ -262,6 +296,8 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
             return <NumberLine min={visual.min} max={visual.max} highlight={visual.highlight} />
           case 'neighborhood-map':
             return <NeighborhoodMap />;
+          case 'compass-rose':
+            return <CompassRose />;
           default:
             return null;
         }
@@ -923,6 +959,12 @@ const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, se
         bg: 'bg-orange-50/50',
         border: 'border-orange-200',
         text: 'text-orange-900',
+    },
+    'leaders-and-citizens': {
+        title: '👑 Leaders & Citizens',
+        bg: 'bg-yellow-50/50',
+        border: 'border-yellow-200',
+        text: 'text-yellow-900',
     }
   }
   const config = headerConfig[activity.displayType as keyof typeof headerConfig] || headerConfig['number-ninja'];
@@ -999,47 +1041,38 @@ const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel,
                     answers: { [activity.id]: { answerIndex, correct: isCorrect } }
                 }
             }
-        }
+        };
     });
   };
 
   const currentAnswer = activityState.answers?.[activity.id];
   const hasAnswered = currentAnswer !== undefined;
 
-  const questionText = activity.prompt;
-  const options = activity.responseOptions || [];
-  const correctIndex = activity.correctAnswerIndex;
-
-  if (options.length === 0 || correctIndex === undefined) {
-      return <div className="p-4 bg-red-50 text-red-700 rounded-lg">This activity is missing its question options.</div>
-  }
-
   return (
     <div className="space-y-4">
       {activity.visual && <ActivityVisualRenderer visual={activity.visual} />}
       <div className="p-4 border rounded-lg">
-        <p className="font-semibold text-slate-800">{questionText}</p>
+        <p className="font-semibold text-slate-800">{activity.prompt}</p>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {options.map((option, index) => {
+          {activity.responseOptions?.map((option, index) => {
             const isSelected = currentAnswer?.answerIndex === index;
-            
             let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
 
             if (hasAnswered) {
-                if (isSelected) {
-                    buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                } else {
-                    buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                }
+              if (isSelected) {
+                buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
+              } else {
+                buttonClass = "bg-slate-50 border-slate-200 opacity-60";
+              }
             }
-            
+
             return (
               <Button
                 key={index}
                 variant="outline"
                 disabled={isReadOnly || hasAnswered}
                 className={`justify-start h-auto py-2 text-left whitespace-normal ${buttonClass}`}
-                onClick={() => handleAnswer(index, correctIndex)}
+                onClick={() => handleAnswer(index, activity.correctAnswerIndex!)}
               >
                 {option}
               </Button>
@@ -1052,171 +1085,151 @@ const SingleMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel,
 };
 
 const SinkOrSwimContent: React.FC<GeneratedContentProps> = ({ activity, setModel, activityState, isReadOnly }) => {
-    const itemsByGrade = {
-        'K': [
-            { name: 'Leaf 🍃', sinks: false }, { name: 'Rock 🪨', sinks: true }, { name: 'Toy Car 🚗', sinks: true }, { name: 'Crayon 🖍️', sinks: true },
-            { name: 'Feather 🪶', sinks: false }, { name: 'Rubber Duck 🦆', sinks: false }, { name: 'Key 🔑', sinks: true }, { name: 'Apple Slice 🍎', sinks: false },
-            { name: 'Spoon (metal) 🥄', sinks: true }, { name: 'Lego block 🧱', sinks: false }
-        ],
-        '1': [
-            { name: 'Penny 🪙', sinks: true }, { name: 'Popsicle Stick 🏒', sinks: false }, { name: 'Rubber Band', sinks: true }, { name: 'Paper Clip 📎', sinks: true },
-            { name: 'Bottle Cap (plastic) 🧢', sinks: false }, { name: 'Marble', sinks: true }, { name: 'Cork', sinks: false }, { name: 'Button', sinks: true },
-            { name: 'Sponge (dry) 🧽', sinks: false }, { name: 'Eraser', sinks: true }
-        ],
-        '2': [
-            { name: 'Wood Stick 🪵', sinks: false }, { name: 'Orange (peeled) 🍊', sinks: true }, { name: 'Gummy Bear 🍬', sinks: true }, { name: 'Screw 🔩', sinks: true },
-            { name: 'Chalk', sinks: true }, { name: 'Ping Pong Ball', sinks: false }, { name: 'Quarter 🪙', sinks: true }, { name: 'Wax Crayon 🖍️', sinks: false },
-            { name: 'Ice Cube 🧊', sinks: false }, { name: 'Grape 🍇', sinks: true }
-        ]
-    };
-    
-    const items = itemsByGrade[activity.grade] || itemsByGrade['K'];
-    
     const [stage, setStage] = useState<'predict' | 'test'>('predict');
-    const [predictions, setPredictions] = useState<Record<string, 'sink' | 'swim'>>({});
-
-    const handlePrediction = (itemName: string, prediction: 'sink' | 'swim') => {
-        setPredictions(prev => ({ ...prev, [itemName]: prediction }));
+    
+    const itemsByGrade: Record<string, string[]> = {
+        'K': ['Leaf', 'Rock', 'Pencil', 'Spoon', 'Toy car', 'Apple', 'Feather', 'Coin', 'Button', 'Crayon'],
+        '1': ['Paper clip', 'Rubber band', 'Key', 'Bottle cap (plastic)', 'Orange', 'Ice cube', 'Chalk', 'Marble', 'Sponge', 'Screw'],
+        '2': ['Aluminum foil (flat)', 'Aluminum foil (boat)', 'Bar of soap', 'Lego brick', 'Grapes', 'Wooden block', 'Small candle', 'Rubber duck', 'Tomato', 'Nail']
     };
+    const items = itemsByGrade[activity.grade] || itemsByGrade['K'];
 
-    const handleTestResult = (itemName: string, actualSinks: boolean, prediction: 'sink' | 'swim') => {
-        const predictionWasCorrect = (prediction === 'sink' && actualSinks) || (prediction === 'swim' && !actualSinks);
+    const handlePrediction = (item: string, predictionIndex: number /* 0=sink, 1=float */) => {
         setModel(prev => {
             const currentAnswers = prev.activity[activity.id]?.answers || {};
             return {
                 ...prev,
                 activity: {
                     ...prev.activity,
-                    [activity.id]: {
-                        ...prev.activity[activity.id],
-                        answers: { ...currentAnswers, [itemName]: { answerIndex: predictionWasCorrect ? 1 : 0, correct: predictionWasCorrect } }
-                    }
+                    [activity.id]: { ...prev.activity[activity.id], answers: { ...currentAnswers, [item]: { answerIndex: predictionIndex } } }
                 }
-            }
+            };
         });
     };
 
-    const allPredicted = Object.keys(predictions).length === items.length;
-    const allTested = Object.keys(activityState.answers || {}).length === items.length;
-    
-    const introContent = (
-      <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg text-left prose prose-slate max-w-none mb-4">
-        <p>Let's be scientists! Some things are heavy for their size, and they sink. Others are light for their size, and they float! This is because of something called <strong>density</strong>.</p>
-        <h4 className="font-bold">What You'll Need:</h4>
-        <ul className="text-sm">
-            <li>A big bowl, bucket, or sink filled with water</li>
-            <li>The items listed below (or similar household objects)</li>
-            <li>A towel for easy cleanup!</li>
-        </ul>
-      </div>
-    );
+    const handleTestResult = (item: string, isCorrect: boolean) => {
+        setModel(prev => {
+            const currentAnswers = prev.activity[activity.id]?.answers || {};
+            const currentPrediction = currentAnswers[item];
+            return {
+                ...prev,
+                activity: {
+                    ...prev.activity,
+                    [activity.id]: {
+                        ...prev.activity[activity.id],
+                        answers: {
+                            ...currentAnswers,
+                            [item]: { ...currentPrediction, correct: isCorrect }
+                        }
+                    }
+                }
+            };
+        });
+    };
+
+    const predictedCount = Object.keys(activityState.answers || {}).length;
+    // FIX: Add type assertion to resolve 'unknown' type error when accessing 'correct' property.
+    const testedCount = Object.values(activityState.answers || {}).filter(a => (a as { correct?: boolean }).correct !== undefined).length;
 
     if (stage === 'predict') {
         return (
             <div className="space-y-4">
                 <div className="p-4 bg-cyan-50/50 border border-cyan-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Part 1: Predict)</h3>
-                    <p className="text-sm">First, make your hypothesis (your scientific guess) for each item. Will it sink or swim?</p>
+                    <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Prediction Time!)</h3>
+                    <p className="text-sm">For each item, predict: will it sink or float?</p>
                 </div>
-                {introContent}
                 <div className="space-y-2">
-                    {items.map(item => (
-                        <div key={item.name} className="flex justify-between items-center bg-white p-2 rounded-lg border">
-                            <span className="font-semibold text-lg">{item.name}</span>
-                            <div className="flex gap-2">
-                                <Button size="sm" variant={predictions[item.name] === 'sink' ? 'default' : 'outline'} className={predictions[item.name] === 'sink' ? 'bg-slate-700' : ''} onClick={() => handlePrediction(item.name, 'sink')} disabled={isReadOnly}>Sink</Button>
-                                <Button size="sm" variant={predictions[item.name] === 'swim' ? 'default' : 'outline'} className={predictions[item.name] === 'swim' ? 'bg-sky-500' : ''} onClick={() => handlePrediction(item.name, 'swim')} disabled={isReadOnly}>Swim</Button>
+                    {items.map(item => {
+                        const answer = activityState.answers?.[item];
+                        return (
+                            <div key={item} className="flex justify-between items-center bg-white p-2 rounded-lg border">
+                                <span className="font-semibold text-lg">{item}</span>
+                                <div className="flex gap-2">
+                                    <Button variant={answer?.answerIndex === 0 ? 'default' : 'outline'} className="bg-slate-200" onClick={() => handlePrediction(item, 0)} disabled={isReadOnly || !!answer}>Sink</Button>
+                                    <Button variant={answer?.answerIndex === 1 ? 'default' : 'outline'} className="bg-sky-200" onClick={() => handlePrediction(item, 1)} disabled={isReadOnly || !!answer}>Float</Button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
-                {allPredicted && (
+                {predictedCount === items.length && (
                     <Button onClick={() => setStage('test')} className="w-full">
-                        All Done! Let's Test! <ArrowRight className="w-4 h-4 ml-2"/>
+                        Let's Test Our Predictions! <ArrowRight className="w-4 h-4 ml-2"/>
                     </Button>
                 )}
             </div>
         );
     }
     
-    if (stage === 'test') {
-         return (
-            <div className="space-y-4">
-                <div className="p-4 bg-cyan-50/50 border border-cyan-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Part 2: Test)</h3>
-                    <p className="text-sm">Now, get a bowl of water and test each item. Was your prediction correct?</p>
-                </div>
-                {introContent}
-                 <div className="space-y-2">
-                    {items.map(item => {
-                        const answer = activityState.answers?.[item.name];
-                        const prediction = predictions[item.name];
-                        if (!prediction) return null; // Should not happen
-                        return (
-                            <div key={item.name} className="flex justify-between items-center bg-white p-2 rounded-lg border">
-                                <div className="text-left">
-                                    <span className="font-semibold text-lg">{item.name}</span>
-                                    <div className="text-xs">You predicted: <span className="font-bold">{prediction}</span></div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleTestResult(item.name, item.sinks, prediction)} disabled={isReadOnly || !!answer}><ThumbsUp /></Button>
-                                    <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleTestResult(item.name, item.sinks, prediction)} disabled={isReadOnly || !!answer}><ThumbsDown /></Button>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-                 {allTested && (
-                     <div className="p-4 text-center bg-green-100 rounded-lg">
-                        <p className="font-bold text-green-800">Great experiment, Scientist!</p>
-                    </div>
-                )}
-            </div>
-        );
-    }
-    
-    return null;
-}
-
-
-export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
-    if (props.activity.displayType === 'story-time') {
-        return <GroupedActivityContent {...props} />
-    }
-    
-    if (props.activity.displayType === 'word-detective') {
-        return <WordDetectiveContent {...props} />
-    }
-    
-    if (props.activity.displayType === 'sentence-builder') {
-        return <SentenceBuilderContent {...props} />
-    }
-
-    if (props.activity.displayType === 'sink-or-swim') {
-        return <SinkOrSwimContent {...props} />
-    }
-
-    if (['number-ninja', 'measurement-master', 'data-detective', 'science-explorer', 'life-cycles-lab', 'community-quest'].includes(props.activity.displayType!)) {
-        return <GroupedStaticMCQContent {...props} />
-    }
-    
-    if (props.activity.type === 'virtual' && props.activity.responseOptions) {
-        return <SingleMCQContent {...props} />;
-    }
-
-    if (props.activity.type === 'offline' || props.activity.type === 'recording') {
-        return (
-             <div className="p-4 bg-slate-50 rounded-lg text-center">
-                <p className="font-semibold">This is an offline activity.</p>
-                <p className="text-sm text-slate-600">Follow the instructions and mark complete when you're done.</p>
-            </div>
-        )
-    }
-    
+    // Test stage
     return (
-        <div className="p-4 bg-slate-50 rounded-lg text-center">
-            <p className="font-semibold">Activity Content</p>
-            <p className="text-sm text-slate-600">This activity doesn't have interactive content.</p>
+         <div className="space-y-4">
+            <div className="p-4 bg-cyan-50/50 border border-cyan-200 rounded-lg">
+                <h3 className="text-lg font-bold text-cyan-900">🧪 Sink or Swim? (Testing Time!)</h3>
+                <p className="text-sm">Now, with a bowl of water, test each item. Was your prediction right?</p>
+            </div>
+            <div className="space-y-2">
+                {items.map(item => {
+                    const answer = activityState.answers?.[item];
+                    const predictionText = answer?.answerIndex === 1 ? "Float" : "Sink";
+                    return (
+                        <div key={item} className="flex justify-between items-center bg-white p-2 rounded-lg border">
+                            <div>
+                               <span className="font-semibold text-lg">{item}</span>
+                               <p className="text-xs text-slate-500">You predicted: <span className="font-bold">{predictionText}</span></p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleTestResult(item, true)} disabled={isReadOnly || answer?.correct !== undefined}><ThumbsUp /></Button>
+                                <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleTestResult(item, false)} disabled={isReadOnly || answer?.correct !== undefined}><ThumbsDown /></Button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+             {testedCount === items.length && (
+                 <div className="p-4 text-center bg-green-100 rounded-lg">
+                    <p className="font-bold text-green-800">Experiment Complete, Scientist!</p>
+                </div>
+            )}
         </div>
     );
-}
+};
+
+export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
+  const { activity } = props;
+
+  if (activity.isGrouped) {
+    switch (activity.displayType) {
+      case 'story-time':
+        return <GroupedActivityContent {...props} />;
+      case 'word-detective':
+        return <WordDetectiveContent {...props} />;
+      case 'sentence-builder':
+        return <SentenceBuilderContent {...props} />;
+      case 'number-ninja':
+      case 'measurement-master':
+      case 'data-detective':
+      case 'science-explorer':
+      case 'life-cycles-lab':
+      case 'community-quest':
+      case 'leaders-and-citizens':
+        return <GroupedStaticMCQContent {...props} />;
+      default:
+         // Fallback for any other grouped type to be safe
+         return <GroupedStaticMCQContent {...props} />;
+    }
+  }
+
+  // Handle non-grouped (single) activities
+  switch (activity.displayType) {
+      case 'sink-or-swim':
+        return <SinkOrSwimContent {...props} />;
+      default:
+         // All other single virtual activities with responseOptions are MCQs
+         if (activity.type === 'virtual' && activity.responseOptions) {
+            return <SingleMCQContent {...props} />;
+         }
+         // For offline/recording activities which have no virtual content, render nothing.
+         return null; 
+  }
+};
