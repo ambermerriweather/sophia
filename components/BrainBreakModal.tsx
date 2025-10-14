@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/Button';
-import { getRandomJoke } from '../../lib/jokes.ts';
+import { getRandomJoke } from '../lib/jokes.ts';
 import { X, Mic, Video, Download, RefreshCw } from 'lucide-react';
 import { Mascot } from './Mascot.tsx';
 

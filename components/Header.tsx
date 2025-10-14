@@ -6,7 +6,7 @@ import { Label } from './ui/Label.tsx';
 import { Switch } from './ui/Switch.tsx';
 import { Input } from './ui/Input.tsx';
 import { GradeSelector } from './GradeSelector.tsx';
-import { DOMAINS } from '../../constants.ts'; // Import for overall progress calculation
+import { DOMAINS } from '../constants.ts'; // Import for overall progress calculation
 import { Mascot } from './Mascot.tsx';
 
 interface HeaderProps {

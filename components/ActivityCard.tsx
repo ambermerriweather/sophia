@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Model, ActivityState } from '../../types.ts';
+import { Activity, Model, ActivityState } from '../types.ts';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
