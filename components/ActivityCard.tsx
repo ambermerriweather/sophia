@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Model, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState } from '../../types.ts';
+import { Activity, Model, ActivityState } from '../../types.ts';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
@@ -138,29 +138,32 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
   }
 
   const allSubItemsAnswered = () => {
-    if (!activity.isGrouped) return true;
-    if (!activity.subItems || !state.answers) return false;
+    // Offline/recording activities can always be marked as complete by the observer.
+    if (activity.type !== 'virtual') {
+      return true;
+    }
 
-    if (activity.displayType === 'word-detective') {
-        const generated = state.generated as WordDetectiveGeneratedState | undefined;
-        if (!generated?.sightWords) return false;
-        // Completion is defined by scoring all sight words.
-        const scoredSightWords = Object.keys(state.answers || {}).filter(key => generated.sightWords.includes(key)).length;
-        return scoredSightWords === generated.sightWords.length;
+    // For single (non-grouped) virtual activities
+    if (!activity.isGrouped) {
+      return state.answers && state.answers[activity.id] !== undefined;
+    }
+
+    // For grouped virtual activities
+    if (!activity.subItems || !state.answers) {
+      return false;
     }
     
-    if (activity.displayType === 'sentence-builder') {
-        const generated = state.generated as SentenceBuilderGeneratedState | undefined;
-        if (!generated) return false;
-        const totalQuestions = generated.sentenceCorrections.length + generated.contractions.length;
-        const answeredCount = Object.keys(state.answers).length;
-        return answeredCount === totalQuestions;
+    const answeredCount = Object.keys(state.answers).length;
+    const totalQuestions = activity.subItems.length;
+
+    // For SinkOrSwim, allow completion after just one prediction.
+    if (activity.displayType === 'sink-or-swim-mission') {
+      return answeredCount > 0;
     }
-    
-    // Default logic for story time and static MCQs: all questions must have a *correct* answer.
-    const answeredCorrectlyCount = Object.values(state.answers).filter(a => a.correct).length;
-    return answeredCorrectlyCount === activity.subItems.length;
+
+    return answeredCount === totalQuestions;
   };
+
   
   const difficulty = state.rating || state.difficulty;
   const difficultyLabels: Record<string, string> = {
@@ -244,8 +247,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
           
            {status === 'completed' && (
             <div className="p-6 text-center bg-emerald-100/70 rounded-lg border-2 border-dashed border-emerald-300 flex flex-col items-center gap-2">
-                <Mascot className="w-20 h-20" />
                 <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto"/>
+                <Mascot className="w-20 h-20" />
                 <h3 className="mt-2 text-xl font-bold text-emerald-800">Activity Complete!</h3>
                 <p className="text-sm text-emerald-700">Great job, Sophia!</p>
                  {state.sticker && <p className="text-5xl mt-2">{state.sticker}</p>}
