@@ -4,8 +4,7 @@ import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetective
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight, Droplets, Anchor, X } from 'lucide-react';
 
-// FIX: Switched from import.meta.env.VITE_GEMINI_API_KEY to process.env.API_KEY as per coding guidelines.
-// This resolves the TypeScript error regarding 'import.meta.env'.
+// FIX: Use process.env.API_KEY as per Gemini API guidelines. This also resolves the TypeScript error with import.meta.env.
 const API_KEY = process.env.API_KEY;
 const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
@@ -417,7 +416,8 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             setError(null);
 
             if (!ai) {
-                setError("Sorry, I couldn't create the activity because the API key is missing.");
+                // FIX: Updated error message to reflect the change to process.env.API_KEY.
+                setError("Sorry, I couldn't create the activity because the API key is missing. Please set API_KEY.");
                 setLoading(false);
                 return;
             }

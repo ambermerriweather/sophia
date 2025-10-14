@@ -2,8 +2,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Model, Domain, ActivityState, Activity } from '../types.ts';
 
-// FIX: Switched from import.meta.env.VITE_GEMINI_API_KEY to process.env.API_KEY as per coding guidelines.
-// This resolves the TypeScript error regarding 'import.meta.env'.
+// FIX: Use process.env.API_KEY as per Gemini API guidelines. This also resolves the TypeScript error with import.meta.env.
 const API_KEY = process.env.API_KEY;
 const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
@@ -201,7 +200,7 @@ export const emailResults = async (model: Model, domains: Domain[]): Promise<{ o
 
     try {
         if (!ai) {
-            // FIX: Updated error message to reflect the change from VITE_GEMINI_API_KEY to API_KEY.
+            // FIX: Updated error message to reflect the change to process.env.API_KEY.
             console.error("API_KEY not configured. Skipping email generation.");
             return { ok: false };
         }
