@@ -87,7 +87,7 @@ export interface Activity {
   subItems?: Activity[]; // For grouped activities
   responseOptions?: readonly string[]; // From pack
   correctAnswerIndex?: number; // From pack
-  displayType?: 'story-time' | 'word-detective' | 'sentence-builder' | 'number-ninja' | 'measurement-master' | 'data-detective' | 'science-explorer' | 'life-cycles-lab' | 'sink-or-swim' | 'community-quest' | 'leaders-and-citizens'; // To specify custom renderers
+  displayType?: 'story-time' | 'word-detective' | 'sentence-builder' | 'number-ninja' | 'measurement-master' | 'data-detective' | 'science-explorer' | 'life-cycles-lab' | 'sink-or-swim' | 'community-quest' | 'leaders-and-citizens' | 'emotions-and-collaboration' | 'planning-and-organization' | 'working-memory-game'; // To specify custom renderers
   visual?: ActivityVisual;
   introText?: string;
   timedSeconds?: number;

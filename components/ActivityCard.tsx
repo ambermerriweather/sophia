@@ -1,15 +1,13 @@
-
-import React, { useState, useEffect } from 'react';
-import { Activity, Model, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState } from '../types.ts';
+import React, { useState, useEffect, useRef } from 'react';
+import { Activity, Model, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState } from '../../types.ts';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
 import { Label } from './ui/Label.tsx';
 import { Badge } from './ui/Badge.tsx';
-import { CheckCircle, Clock, Play, Star, Info } from 'lucide-react';
+import { CheckCircle, Clock, Play, Star, Info, Timer } from 'lucide-react';
 import { BrainBreakModal } from './BrainBreakModal.tsx';
 import { GeneratedContent } from './GeneratedContent.tsx';
-import { TimedTask } from './TimedTask.tsx'; // Import the new component
 
 interface ActivityCardProps {
   activity: Activity;
@@ -18,15 +16,73 @@ interface ActivityCardProps {
 }
 
 const stickerEmojis = ['🌟', '🚀', '🦄', '🍎', '💡', '🏆', '🌈', '✅', '👍', '🧠'];
-const getRandomSticker = () => stickerEmojis[Math.floor(Math.random() * stickerEmojis.length)];
 
 type ActivityStatus = 'idle' | 'running' | 'completed';
+
+const TimedTask: React.FC<{ seconds: number }> = ({ seconds }) => {
+  const [remaining, setRemaining] = useState(seconds);
+  const [running, setRunning] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (running && remaining > 0) {
+      intervalRef.current = window.setInterval(() => {
+        setRemaining(prev => prev - 1);
+      }, 1000);
+    } else if (remaining <= 0) {
+      window.clearInterval(intervalRef.current!);
+      setRunning(false);
+    }
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
+  }, [running, remaining]);
+
+  const reset = () => {
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    setRunning(false);
+    setRemaining(seconds);
+  };
+  
+  const minutes = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+
+  return (
+    <div className="p-4 border rounded-lg bg-white space-y-3">
+        <div className="flex items-center justify-between">
+            <h4 className="font-semibold flex items-center gap-2"><Timer className="w-5 h-5"/> Timed Challenge</h4>
+            <div className={`text-2xl font-mono font-bold ${remaining === 0 ? 'text-red-500' : 'text-slate-800'}`}>
+                {String(minutes).padStart(2, '0')}:{String(secs).padStart(2, '0')}
+            </div>
+        </div>
+      <div className="flex gap-2 justify-center">
+        <Button onClick={() => setRunning(true)} disabled={running || remaining === 0}>Start</Button>
+        <Button onClick={() => setRunning(false)} disabled={!running}>Stop</Button>
+        <Button variant="outline" onClick={reset}>Reset</Button>
+      </div>
+       {remaining === 0 && <p className="text-center font-bold text-red-600 animate-pulse">Time's Up!</p>}
+    </div>
+  );
+};
+
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, setModel }) => {
   const state = model.activity[activity.id] || { id: activity.id, completed: false };
   const [showBrainBreak, setShowBrainBreak] = useState(false);
   const isKidMode = model.settings.kidMode;
+  const lastStickerRef = useRef<string | null>(null);
 
+  const getRandomSticker = () => {
+    let availableStickers = stickerEmojis;
+    if (lastStickerRef.current) {
+        availableStickers = stickerEmojis.filter(s => s !== lastStickerRef.current);
+    }
+    const sticker = availableStickers[Math.floor(Math.random() * availableStickers.length)];
+    lastStickerRef.current = sticker;
+    return sticker;
+  };
+
+  // Determine initial status based on saved state
   const getInitialStatus = (): ActivityStatus => {
     if (state.completed) return 'completed';
     if (state.startedAt && !state.endedAt) return 'running';
@@ -40,7 +96,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
       ...prev,
       activity: {
         ...prev.activity,
-        [activity.id]: { ...(prev.activity[activity.id] || { id: activity.id }), ...newState },
+        [activity.id]: { ...prev.activity[activity.id], id: activity.id, ...newState },
       },
     }));
   };
@@ -52,6 +108,12 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
   };
 
   const handleComplete = () => {
+    const difficulty = state.rating || state.difficulty;
+    if (!difficulty) {
+        alert("Please select a difficulty rating (Too Easy, Just Right, or Too Hard) before completing the activity.");
+        return;
+    }
+
     const endTime = Date.now();
     const duration = Math.round((endTime - (state.startedAt || endTime)) / 1000);
     const sticker = model.settings.stickers ? getRandomSticker() : undefined;
@@ -61,52 +123,51 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
   };
   
   const handleReset = () => {
-    setModel(prev => {
-        const { [activity.id]: _, ...rest } = prev.activity;
-        return { ...prev, activity: rest };
+    // Keep notes and rating, but reset time and completion status
+    updateState({
+      completed: false,
+      startedAt: undefined,
+      endedAt: undefined,
+      time: undefined,
+      sticker: undefined,
+      generated: undefined, // Clear generated content on reset
+      answers: undefined,
     });
     setStatus('idle');
   }
 
   const allSubItemsAnswered = () => {
-    if (activity.type !== 'virtual' || !activity.isGrouped) return true;
+    if (!activity.isGrouped) return true;
     if (!activity.subItems || !state.answers) return false;
-    
-    // For Word Detective, completion is defined by scoring all sight words and answering all MCQs
+
     if (activity.displayType === 'word-detective') {
         const generated = state.generated as WordDetectiveGeneratedState | undefined;
-        if (!generated) return false;
-        const sightWordsAnswered = generated.sightWords.every(word => state.answers?.[word] !== undefined);
-        const rhymesAnswered = generated.rhymes.every((_, i) => state.answers?.[`rhyme-${i}`] !== undefined);
-        const syllablesAnswered = generated.syllables.every((_, i) => state.answers?.[`syllable-${i}`] !== undefined);
-        return sightWordsAnswered && rhymesAnswered && syllablesAnswered;
+        if (!generated?.sightWords) return false;
+        // Completion is defined by scoring all sight words.
+        const scoredSightWords = Object.keys(state.answers || {}).filter(key => generated.sightWords.includes(key)).length;
+        return scoredSightWords === generated.sightWords.length;
     }
     
-    // For Sentence Builder
     if (activity.displayType === 'sentence-builder') {
         const generated = state.generated as SentenceBuilderGeneratedState | undefined;
         if (!generated) return false;
         const totalQuestions = generated.sentenceCorrections.length + generated.contractions.length;
         const answeredCount = Object.keys(state.answers).length;
-        return answeredCount >= totalQuestions;
+        return answeredCount === totalQuestions;
     }
     
-    // For Sink or Swim, all items must be tested
-    if (activity.displayType === 'sink-or-swim') {
-        const itemsByGrade: Record<string, string[]> = {
-            'K': ['Leaf', 'Rock', 'Pencil', 'Spoon', 'Toy car', 'Apple', 'Feather', 'Coin', 'Button', 'Crayon'],
-            '1': ['Paper clip', 'Rubber band', 'Key', 'Bottle cap (plastic)', 'Orange', 'Ice cube', 'Chalk', 'Marble', 'Sponge', 'Screw'],
-            '2': ['Aluminum foil (flat)', 'Aluminum foil (boat)', 'Bar of soap', 'Lego brick', 'Grapes', 'Wooden block', 'Small candle', 'Rubber duck', 'Tomato', 'Nail']
-        };
-        const items = itemsByGrade[activity.grade] || itemsByGrade['K'];
-        return items.every(item => (state.answers?.[item] as any)?.correct !== undefined);
-    }
-    
-    // Default logic for static grouped MCQs
-    return activity.subItems.every(subItem => state.answers?.[subItem.id] !== undefined);
+    // Default logic for story time
+    const answeredCount = Object.keys(state.answers).length;
+    return answeredCount === activity.subItems.length;
   };
   
   const difficulty = state.rating || state.difficulty;
+  const difficultyLabels: Record<string, string> = {
+    'easy': 'Too Easy',
+    'just-right': 'Just Right',
+    'hard': 'Too Hard'
+  };
+
 
   return (
     <>
@@ -114,7 +175,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className={isKidMode ? 'text-3xl' : 'text-xl'}>{activity.name}</CardTitle>
-            <Badge variant="secondary">{activity.grade === 'K' ? 'Kindergarten' : `${activity.grade === '1' ? '1st' : '2nd'} Grade`}</Badge>
+            <Badge variant="secondary">{activity.grade === 'K' ? 'Kindergarten' : `${activity.grade}st Grade`}</Badge>
           </div>
         </CardHeader>
 
@@ -129,7 +190,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
              </div>
           </div>
 
-          {activity.sentenceStems && status !== 'completed' && (
+          {activity.sentenceStems && (
             <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                 <h4 className="font-semibold text-blue-800">Sentence Starters</h4>
                 <ul className="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
@@ -138,19 +199,13 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
             </div>
           )}
 
-          {activity.timedSeconds && status !== 'completed' && (
-              <TimedTask
-                  seconds={activity.timedSeconds}
-                  showTextarea={activity.type === 'offline' && activity.name.toLowerCase().includes('write')}
-                  placeholder="Write your story here..."
-              />
-          )}
+          {activity.timedSeconds && <TimedTask seconds={activity.timedSeconds} />}
 
-          {status === 'running' && activity.type === 'virtual' && (
+          {status === 'running' && (
               <GeneratedContent activity={activity} model={model} setModel={setModel} activityState={state} isReadOnly={false} />
           )}
 
-          {status === 'running' && !isKidMode && (
+          {status === 'running' && (
             <div className="space-y-4 pt-4 border-t">
               <div className="space-y-2">
                 <Label className="font-semibold">Observer Tools</Label>
@@ -160,7 +215,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
                         <div className="flex gap-2">
                           {(['easy', 'just-right', 'hard'] as const).map(d => (
                             <Button key={d} size="sm" variant={difficulty === d ? 'default' : 'outline'} onClick={() => updateState({ rating: d, difficulty: d })}>
-                              {d.replace('-', ' ')}
+                              {difficultyLabels[d]}
                             </Button>
                           ))}
                         </div>
@@ -184,19 +239,8 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
             <div className="p-6 text-center bg-green-100/70 rounded-lg border-2 border-dashed border-green-300">
                 <CheckCircle className="w-12 h-12 text-green-600 mx-auto"/>
                 <h3 className="mt-2 text-xl font-bold text-green-800">Activity Complete!</h3>
-                <p className="text-sm text-green-700">Great job, {model.learner.name}!</p>
+                <p className="text-sm text-green-700">Great job, Sophia!</p>
                  {state.sticker && <p className="text-5xl mt-2">{state.sticker}</p>}
-                 {/* Show a summary for completed virtual activities */}
-                 {activity.type === 'virtual' && state.answers && (
-                     <div className="mt-4 text-left text-sm">
-{/* FIX: The type assertion on `state.answers` was incorrect, causing `Object.values` to be treated as returning a boolean array. Replaced with a type assertion on each element (`a`) within the array methods to correctly access the `correct` property. */}
-                         {Object.values(state.answers).filter(a => (a as { correct?: boolean }).correct !== undefined).length > 0 &&
-                          <p className="text-center font-semibold text-green-800">
-                              You got {Object.values(state.answers).filter(a => (a as { correct?: boolean }).correct).length} of {Object.values(state.answers).filter(a => (a as { correct?: boolean }).correct !== undefined).length} correct!
-                          </p>
-                         }
-                     </div>
-                 )}
             </div>
            )}
         </CardContent>
