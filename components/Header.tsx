@@ -1,6 +1,6 @@
 import React from 'react';
 import { Model, Settings, Grade } from '../../types.ts';
-import { percentComplete, overallStatus } from '../../lib/utils.ts';
+import { percentComplete, overallStatus } from '../lib/utils.ts';
 import { Progress } from './ui/Progress.tsx';
 import { Label } from './ui/Label.tsx';
 import { Switch } from './ui/Switch.tsx';

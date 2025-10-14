@@ -1,8 +1,6 @@
-
-
 import React, { useState } from 'react';
 import { Model, ActivityState, Domain } from '../../types.ts';
-import { buildTextSummary, emailResults, overallStatus, domainStatus, nextStepsForDomain, calculateDomainPerformance } from '../../lib/utils.ts';
+import { buildTextSummary, emailResults, overallStatus, domainStatus, nextStepsForDomain, calculateDomainPerformance } from '../lib/utils.ts';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
 import { Label } from './ui/Label.tsx';

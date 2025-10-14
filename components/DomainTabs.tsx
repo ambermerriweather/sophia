@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/Tabs.tsx';
 import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
 import { Label } from './ui/Label.tsx';
-import { percentComplete } from '../../lib/utils.ts';
+import { percentComplete } from '../lib/utils.ts';
 import { Send } from 'lucide-react';
 
 interface DomainTabsProps {
