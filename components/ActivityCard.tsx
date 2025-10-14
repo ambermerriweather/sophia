@@ -8,6 +8,7 @@ import { Badge } from './ui/Badge.tsx';
 import { CheckCircle, Clock, Play, Star, Info, Timer } from 'lucide-react';
 import { BrainBreakModal } from './BrainBreakModal.tsx';
 import { GeneratedContent } from './GeneratedContent.tsx';
+import { Mascot } from './Mascot.tsx';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -156,9 +157,9 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
         return answeredCount === totalQuestions;
     }
     
-    // Default logic for story time
-    const answeredCount = Object.keys(state.answers).length;
-    return answeredCount === activity.subItems.length;
+    // Default logic for story time and static MCQs: all questions must have a *correct* answer.
+    const answeredCorrectlyCount = Object.values(state.answers).filter(a => a.correct).length;
+    return answeredCorrectlyCount === activity.subItems.length;
   };
   
   const difficulty = state.rating || state.difficulty;
@@ -168,10 +169,16 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
     'hard': 'Too Hard'
   };
 
+  const difficultyClasses: Record<string, string> = {
+      'easy': 'bg-sky-100 text-sky-800 border-sky-200',
+      'just-right': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      'hard': 'bg-amber-100 text-amber-800 border-amber-200'
+  }
+
 
   return (
     <>
-      <Card className={`flex flex-col transition-all duration-300 ${status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white'}`}>
+      <Card className={`flex flex-col transition-all duration-300 ${status === 'completed' ? 'bg-emerald-50 border-emerald-200' : 'bg-white'}`}>
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className={isKidMode ? 'text-3xl' : 'text-xl'}>{activity.name}</CardTitle>
@@ -214,7 +221,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
                         <Label>Difficulty</Label>
                         <div className="flex gap-2">
                           {(['easy', 'just-right', 'hard'] as const).map(d => (
-                            <Button key={d} size="sm" variant={difficulty === d ? 'default' : 'outline'} onClick={() => updateState({ rating: d, difficulty: d })}>
+                            <Button key={d} size="sm" variant={difficulty === d ? 'default' : 'outline'} className={difficulty === d ? difficultyClasses[d] : ''} onClick={() => updateState({ rating: d, difficulty: d })}>
                               {difficultyLabels[d]}
                             </Button>
                           ))}
@@ -236,10 +243,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
           )}
           
            {status === 'completed' && (
-            <div className="p-6 text-center bg-green-100/70 rounded-lg border-2 border-dashed border-green-300">
-                <CheckCircle className="w-12 h-12 text-green-600 mx-auto"/>
-                <h3 className="mt-2 text-xl font-bold text-green-800">Activity Complete!</h3>
-                <p className="text-sm text-green-700">Great job, Sophia!</p>
+            <div className="p-6 text-center bg-emerald-100/70 rounded-lg border-2 border-dashed border-emerald-300 flex flex-col items-center gap-2">
+                <Mascot className="w-20 h-20" />
+                <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto"/>
+                <h3 className="mt-2 text-xl font-bold text-emerald-800">Activity Complete!</h3>
+                <p className="text-sm text-emerald-700">Great job, Sophia!</p>
                  {state.sticker && <p className="text-5xl mt-2">{state.sticker}</p>}
             </div>
            )}
@@ -263,7 +271,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
                 </Button>
             )}
             {status === 'running' && (
-                <Button onClick={handleComplete} disabled={!allSubItemsAnswered()} className={'bg-green-600 hover:bg-green-700'}>
+                <Button onClick={handleComplete} disabled={!allSubItemsAnswered()} className={'bg-emerald-600 hover:bg-emerald-700 text-white'}>
                     <Star className="w-4 h-4 mr-2"/>Mark as Complete
                 </Button>
             )}

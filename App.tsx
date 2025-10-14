@@ -44,7 +44,7 @@ function App() {
   }, [selectedGrade, DOMAINS]); // Added DOMAINS dependency
 
   return (
-    <div className={`antialiased bg-slate-50 text-slate-700 min-h-screen ${kidMode ? 'text-lg' : ''}`}>
+    <div className={`antialiased bg-rose-50 text-slate-700 min-h-screen ${kidMode ? 'text-lg' : ''}`}>
       <div className="container mx-auto p-4 md:p-8 space-y-8">
         <Header 
           model={model} 

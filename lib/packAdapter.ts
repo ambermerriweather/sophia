@@ -38,7 +38,8 @@ const transformItemToActivity = (item: PackItem): Activity => {
     displayType: item.displayType,
     introText: item.introText,
     timedSeconds: item.timedSeconds,
-    sentenceStems: item.sentenceStems
+    sentenceStems: item.sentenceStems,
+    subItems: item.subItems // Pass subItems through for Sink or Swim
   };
 };
 
@@ -101,7 +102,7 @@ const groupStaticMCQActivities = (
     const otherItems: PackItem[] = [];
 
     for (const item of subdomain.items) {
-         if (item.type === 'virtual' && !item.displayType) { // Avoid grabbing things like sink-or-swim
+         if (item.type === 'virtual' && !item.displayType?.startsWith('sink-or-swim')) { // Avoid grabbing sink-or-swim
             if (!virtualItems[item.grade as Grade]) {
                 virtualItems[item.grade as Grade] = [];
             }
@@ -149,6 +150,11 @@ const groupStaticMCQActivities = (
  * Processes a single subdomain, applying grouping logic where applicable.
  */
 const processSubdomain = (subdomain: PackSubdomain): Activity[] => {
+    const measurementMasterIntros: Record<Grade, string> = {
+        'K': "Let's compare things! We can see which things are longer, taller, or heavier. This helps us understand the world around us.",
+        '1': "Time to be a Measurement Master! We use tools like rulers to see how long things are and clocks to tell time. Let's practice!",
+        '2': "Welcome, Measurement Master! We'll practice using different units, like inches and miles, and solve problems with time and money."
+    };
     const scienceExplorerIntros: Record<Grade, string> = {
         'K': "Science is all about exploring! We use our five senses—sight, hearing, smell, taste, and touch—to observe the world. Let's find out what it means for something to be living or non-living.",
         '1': "Let's be scientists! A scientist makes a special kind of guess called a 'hypothesis' (like 'If I do this, then that will happen'). We use tools like thermometers and scales to measure things and record what we find.",
@@ -204,13 +210,23 @@ const processSubdomain = (subdomain: PackSubdomain): Activity[] => {
         const measurementItems = subdomain.items.filter(item => !['bar-chart', 'line-plot'].includes((item as any).visual?.type) && !item.title?.toLowerCase().includes('tally'));
         const dataItems = subdomain.items.filter(item => ['bar-chart', 'line-plot'].includes((item as any).visual?.type) || item.title?.toLowerCase().includes('tally'));
         
-        const measurementActivities = groupStaticMCQActivities({ ...subdomain, items: measurementItems }, 'measurement-master', 'grouped-measdata', 'Measurement Master Mission 📏', "Get your rulers ready, Measurement Master! It's time to explore size, time, and money.");
+        const measurementActivities = groupStaticMCQActivities({ ...subdomain, items: measurementItems }, 'measurement-master', 'grouped-measdata', 'Measurement Master Mission 📏', "Get your rulers ready, Measurement Master! It's time to explore size, time, and money.", measurementMasterIntros);
         const dataActivities = groupStaticMCQActivities({ ...subdomain, items: dataItems }, 'data-detective', 'grouped-datadetective', 'Data Detective 📊', "Put on your detective hat! It's time to look at charts and graphs to find the hidden clues.");
 
         activities = [...measurementActivities, ...dataActivities];
         break;
     case 'Inquiry & Observation':
-        activities = groupStaticMCQActivities(subdomain, 'science-explorer', 'grouped-science-inquiry', 'Science Explorer Mission', "Put on your lab coat, Science Explorer! It's time to observe, predict, and discover.", scienceExplorerIntros);
+        // Handle Sink or Swim separately
+        const sinkOrSwimItems = subdomain.items.filter(i => i.title === 'Sink or Swim?');
+        const otherInquiryItems = subdomain.items.filter(i => i.title !== 'Sink or Swim?');
+        const groupedSinkOrSwim: Activity[] = sinkOrSwimItems.map(item => ({
+            ...transformItemToActivity(item),
+            isGrouped: true,
+            displayType: 'sink-or-swim-mission'
+        }));
+        
+        const explorerActivities = groupStaticMCQActivities({ ...subdomain, items: otherInquiryItems }, 'science-explorer', 'grouped-science-inquiry', 'Science Explorer Mission', "Put on your lab coat, Science Explorer! It's time to observe, predict, and discover.", scienceExplorerIntros);
+        activities = [...explorerActivities, ...groupedSinkOrSwim];
         break;
     case 'Life Cycles':
         activities = groupStaticMCQActivities(subdomain, 'life-cycles-lab', 'grouped-lifecycles', 'Life Cycles Lab 🌱', "Welcome to the Life Cycles Lab! Let's explore how living things grow and change.", lifeCyclesIntros);

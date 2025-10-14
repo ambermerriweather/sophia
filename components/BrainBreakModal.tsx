@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/Button';
 import { getRandomJoke } from '../../lib/jokes.ts';
 import { X, Mic, Video, Download, RefreshCw } from 'lucide-react';
+import { Mascot } from './Mascot.tsx';
 
 interface BrainBreakModalProps {
   show: boolean;
@@ -52,7 +52,10 @@ export const BrainBreakModal: React.FC<BrainBreakModalProps> = ({ show, onClose,
         <div className="relative">
           <Button size="icon" variant="ghost" className="absolute -top-4 -right-4 rounded-full" onClick={onClose}><X /></Button>
           
-          <h2 className="text-3xl font-bold text-slate-800">🎉 Woohoo! 🎉</h2>
+          <div className="flex flex-col items-center">
+            <Mascot className="w-24 h-24 -mt-16" />
+            <h2 className="text-3xl font-bold text-slate-800 -mt-2">Woohoo!</h2>
+          </div>
           <p className="mt-2 text-slate-600 text-lg">Awesome job finishing <span className="font-semibold">{activityName}</span>!</p>
 
           <div className="mt-6">
@@ -63,7 +66,7 @@ export const BrainBreakModal: React.FC<BrainBreakModalProps> = ({ show, onClose,
               </div>
             ) : (
               <div>
-                <h3 className="font-semibold text-slate-700">Time for a fun brain break! Pick one:</h3>
+                <h3 className="font-semibold text-slate-700">You earned a fun brain break! Pick one:</h3>
                 <div className="mt-4 grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {breakOptions.map(opt => (
                     <button key={opt.key} onClick={() => setActiveBreak(opt.key)} className="p-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all text-center">

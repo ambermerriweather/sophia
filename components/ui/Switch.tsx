@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 // FIX: Update props to extend from ButtonHTMLAttributes to match the rendered <button> element.
@@ -15,8 +14,8 @@ export const Switch: React.FC<SwitchProps> = ({ checked, onCheckedChange, ...pro
       aria-checked={checked}
       onClick={() => onCheckedChange(!checked)}
       className={`${
-        checked ? 'bg-slate-900' : 'bg-slate-200'
-      } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2`}
+        checked ? 'bg-rose-500' : 'bg-slate-200'
+      } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2`}
       {...props}
     >
       <span

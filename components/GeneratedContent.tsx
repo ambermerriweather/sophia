@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../../types.ts';
 import { Button } from './ui/Button.tsx';
-import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight } from 'lucide-react';
+// FIX: Import the 'X' icon from lucide-react.
+import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight, Droplets, Anchor, X } from 'lucide-react';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -312,75 +313,61 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
 
 
 const storyTimeSchema = {
-  type: Type.OBJECT,
-  properties: {
-    story: {
-      type: Type.STRING,
-      description: "A short, engaging story appropriate for the specified grade level."
-    },
-    questions: {
-      type: Type.ARRAY,
-      description: "A list of multiple-choice questions about the story.",
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          question: {
-            type: Type.STRING,
-            description: "The question text."
-          },
-          options: {
+    type: Type.OBJECT,
+    properties: {
+        story: { type: Type.STRING, description: 'A 4-5 sentence story for a child at the specified grade level. The story should be simple, engaging, and appropriate for early readers.' },
+        questions: {
             type: Type.ARRAY,
-            items: { type: Type.STRING },
-            description: "An array of 4 possible answers."
-          },
-          correctAnswerIndex: {
-            type: Type.INTEGER,
-            description: "The 0-based index of the correct answer in the options array."
-          }
-        },
-        required: ["question", "options", "correctAnswerIndex"]
-      }
-    }
-  },
-  required: ["story", "questions"]
+            description: 'A list of 3-4 multiple-choice questions about the story.',
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    question: { type: Type.STRING },
+                    options: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    correctAnswerIndex: { type: Type.INTEGER }
+                },
+                required: ['question', 'options', 'correctAnswerIndex']
+            }
+        }
+    },
+    required: ['story', 'questions']
 };
-
 const wordDetectiveSchema = {
     type: Type.OBJECT,
     properties: {
         sightWords: {
             type: Type.ARRAY,
-            description: "A list of 10 grade-appropriate sight words.",
+            description: "A list of 5 grade-appropriate high-frequency sight words.",
             items: { type: Type.STRING }
         },
         rhymes: {
             type: Type.ARRAY,
-            description: "A list of 3 rhyming questions.",
+            description: "A list of 2-3 rhyming challenges.",
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    promptWord: { type: Type.STRING },
+                    promptWord: { type: Type.STRING, description: "The word to find a rhyme for." },
                     options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 options, one of which rhymes." },
                     correctAnswerIndex: { type: Type.INTEGER }
                 },
-                required: ["promptWord", "options", "correctAnswerIndex"]
+                required: ['promptWord', 'options', 'correctAnswerIndex']
             }
         },
         syllables: {
             type: Type.ARRAY,
-            description: "A list of 3 syllable counting questions.",
+            description: "A list of 2-3 syllable counting challenges.",
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    word: { type: Type.STRING },
-                    options: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "4 number options for syllable count." },
+                    word: { type: Type.STRING, description: "The word to count syllables for." },
+                    options: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "4 number options, one is correct." },
                     correctAnswerIndex: { type: Type.INTEGER }
                 },
-                required: ["word", "options", "correctAnswerIndex"]
+                required: ['word', 'options', 'correctAnswerIndex']
             }
         }
     },
-    required: ["sightWords", "rhymes", "syllables"]
+    required: ['sightWords', 'rhymes', 'syllables']
 };
 
 const sentenceBuilderSchema = {
@@ -388,221 +375,93 @@ const sentenceBuilderSchema = {
     properties: {
         sentenceCorrections: {
             type: Type.ARRAY,
-            description: "A list of 3-5 sentence correction questions.",
+            description: "A list of 2-3 challenges to identify the correctly written sentence.",
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    question: { type: Type.STRING, description: "The instruction for the user (e.g., 'Choose the correct sentence.')." },
-                    options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 sentence options, one of which is grammatically correct." },
+                    question: { type: Type.STRING, description: "A prompt, e.g., 'Which sentence is written correctly?'" },
+                    options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 sentences, only one with correct capitalization and punctuation." },
                     correctAnswerIndex: { type: Type.INTEGER }
                 },
-                required: ["question", "options", "correctAnswerIndex"]
+                required: ['question', 'options', 'correctAnswerIndex']
             }
         },
         contractions: {
             type: Type.ARRAY,
-            description: "A list of 3-5 contraction matching questions.",
+            description: "A list of 2-3 challenges to form a contraction.",
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    uncontracted: { type: Type.STRING, description: "The uncontracted pair of words (e.g., 'do not')." },
+                    uncontracted: { type: Type.STRING, description: "The two words to be contracted, e.g., 'do not'." },
                     options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 options, one of which is the correct contraction." },
                     correctAnswerIndex: { type: Type.INTEGER }
                 },
-                required: ["uncontracted", "options", "correctAnswerIndex"]
+                required: ['uncontracted', 'options', 'correctAnswerIndex']
             }
         }
     },
-    required: ["sentenceCorrections", "contractions"]
+    required: ['sentenceCorrections', 'contractions']
 };
 
 
-const GroupedActivityContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const generatedContent = activityState.generated as GroupedMCQGeneratedState | undefined;
+const renderGroupHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200 text-center">
+      <h3 className="text-2xl font-bold text-rose-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-rose-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
+const renderScienceHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-sky-50 to-sky-100 border border-sky-200 text-center">
+      <h3 className="text-2xl font-bold text-sky-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-sky-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
 
-  const generateStory = async () => {
-    setLoading(true);
-    setError(null);
-    const skills = activity.subItems?.map(item => item.name).join(', ') || 'basic comprehension';
-    const prompt = `
-      Create a very short, fun, and simple story for a ${activity.grade === 'K' ? 'Kindergartener' : `${activity.grade}st grader`} named ${model.learner.name}.
-      The story should be easy to understand and allow you to ask questions about the following skills: ${skills}.
-      After the story, generate exactly ${activity.subItems?.length || 5} multiple-choice questions based on the story, each with 4 options.
-      The questions must directly test the skills listed above and must match the story content.
-    `;
+const renderMathHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 text-center">
+      <h3 className="text-2xl font-bold text-yellow-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-yellow-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
+const renderSSHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 text-center">
+      <h3 className="text-2xl font-bold text-orange-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-orange-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
+const renderSELHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200 text-center">
+      <h3 className="text-2xl font-bold text-pink-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-pink-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
+const renderEFHeader = (title: string, intro: string | undefined) => (
+  <div className="p-4 mb-4 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 text-center">
+      <h3 className="text-2xl font-bold text-purple-800">{title}</h3>
+      {intro && <p className="mt-2 text-sm text-purple-700 max-w-2xl mx-auto">{intro}</p>}
+  </div>
+);
 
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: storyTimeSchema,
-        },
-      });
-      
-      const parsed = JSON.parse(response.text);
-      
-      if (parsed.questions.length !== activity.subItems?.length) {
-         throw new Error("Generated content does not match the required number of questions.");
-      }
-      
-      const content: GroupedMCQGeneratedState = {
-        story: parsed.story,
-        questions: parsed.questions,
-      };
+const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
 
-      setModel(prev => ({
-        ...prev,
-        activity: {
-          ...prev.activity,
-          [activity.id]: { ...prev.activity[activity.id], generated: content }
-        }
-      }));
-    } catch (e) {
-      console.error(e);
-      setError("Oops! We had trouble creating the story. Please try starting the activity again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const questions = activity.subItems || [];
+    const currentQuestion = questions[currentQuestionIndex];
+    const isKidMode = model.settings.kidMode;
 
-  useEffect(() => {
-    if (!generatedContent && !loading && !error) {
-      generateStory();
-    }
-  }, [activity.id, generatedContent]);
-
-  const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
-    setModel(prev => {
-        const currentAnswers = prev.activity[activity.id]?.answers || {};
-        const isCorrect = answerIndex === correctIndex;
-        return {
-            ...prev,
-            activity: {
-                ...prev.activity,
-                [activity.id]: {
-                    ...prev.activity[activity.id],
-                    answers: {
-                        ...currentAnswers,
-                        [questionId]: { answerIndex, correct: isCorrect }
-                    }
-                }
-            }
-        }
-    });
-  };
-
-  const currentQuestion = generatedContent?.questions[currentQuestionIndex];
-  const currentSubItem = activity.subItems?.[currentQuestionIndex];
-  const currentAnswer = currentSubItem ? activityState.answers?.[currentSubItem.id] : undefined;
-  const hasAnswered = currentAnswer !== undefined;
-
-  if (loading) return <div className="flex items-center justify-center p-8"><Loader className="animate-spin mr-2" /> Creating a fun story for Sophia...</div>;
-  if (error) return <div className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</div>;
-  if (!generatedContent || !currentQuestion || !currentSubItem) return <div className="p-4">Preparing activity...</div>;
-
-  return (
-    <div className="space-y-4">
-      <div className="p-4 bg-amber-50/50 border border-amber-200 rounded-lg prose prose-slate max-w-none">
-        <h3 className="text-lg font-bold text-amber-900">Story Time!</h3>
-        <p>{generatedContent.story}</p>
-      </div>
-
-      <div className="p-4 border rounded-lg">
-        <p className="font-semibold text-slate-800">{currentQuestionIndex + 1}. {currentQuestion.question}</p>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = currentAnswer?.answerIndex === index;
-            
-            let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-
-            if (hasAnswered) {
-                if (isSelected) {
-                    buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                } else {
-                    buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                }
-            }
-
-            return (
-              <Button
-                key={index}
-                variant="outline"
-                disabled={isReadOnly || hasAnswered}
-                className={`justify-start h-auto py-2 text-left whitespace-normal ${buttonClass}`}
-                onClick={() => handleAnswer(currentSubItem.id, index, currentQuestion.correctAnswerIndex)}
-              >
-                {option}
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-      <div className="flex justify-between items-center">
-        <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i - 1)} disabled={currentQuestionIndex === 0}>Back</Button>
-        <span className="text-sm font-medium">{currentQuestionIndex + 1} / {generatedContent.questions.length}</span>
-        <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i + 1)} disabled={currentQuestionIndex === generatedContent.questions.length - 1}>Next</Button>
-      </div>
-    </div>
-  );
-};
-
-const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [stage, setStage] = useState<'sight-words' | 'rhymes' | 'syllables'>('sight-words');
-    const [subStageIndex, setSubStageIndex] = useState(0);
-
-    const generatedContent = activityState.generated as WordDetectiveGeneratedState | undefined;
-
-    const generateContent = async () => {
-        setLoading(true);
-        setError(null);
-        const prompt = `
-            Generate a set of reading fluency activities for a ${activity.grade === 'K' ? 'Kindergartener' : `${activity.grade}st grader`}.
-            The set should include:
-            1. A list of exactly 10 common, grade-appropriate sight words.
-            2. Exactly 3 rhyming questions. Each should have a prompt word and 4 options, where one option rhymes.
-            3. Exactly 3 syllable counting questions. Each should have a word and 4 number options for the syllable count.
-        `;
-
-        try {
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: wordDetectiveSchema,
-                },
-            });
-            const content: WordDetectiveGeneratedState = JSON.parse(response.text);
-            setModel(prev => ({
-                ...prev,
-                activity: {
-                    ...prev.activity,
-                    [activity.id]: { ...prev.activity[activity.id], generated: content }
-                }
-            }));
-        } catch (e) {
-            console.error(e);
-            setError("Oops! We had trouble creating the activities. Please try starting again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Reset selection when question changes
     useEffect(() => {
-        if (!generatedContent && !loading && !error) {
-            generateContent();
-        }
-    }, [activity.id, generatedContent]);
+        setSelectedAnswerIndex(null);
+    }, [currentQuestionIndex]);
+    
+    const handleAnswer = (answerIndex: number) => {
+        if (selectedAnswerIndex !== null) return; // Prevent changing answer
 
-    const handleSightWordScore = (word: string, isCorrect: boolean) => {
+        setSelectedAnswerIndex(answerIndex);
+        const isCorrect = answerIndex === currentQuestion.correctAnswerIndex;
+        
         setModel(prev => {
             const currentAnswers = prev.activity[activity.id]?.answers || {};
             return {
@@ -611,479 +470,252 @@ const WordDetectiveContent: React.FC<GeneratedContentProps> = ({ activity, model
                     ...prev.activity,
                     [activity.id]: {
                         ...prev.activity[activity.id],
-                        answers: { ...currentAnswers, [word]: { answerIndex: isCorrect ? 1 : 0, correct: isCorrect } }
+                        id: activity.id,
+                        answers: {
+                            ...currentAnswers,
+                            [currentQuestion.id]: { answerIndex, correct: isCorrect }
+                        }
                     }
                 }
             }
         });
     };
-    
-    const handleMcqAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
-        setModel(prev => {
-            const currentAnswers = prev.activity[activity.id]?.answers || {};
-            return { ...prev, activity: { ...prev.activity, [activity.id]: { ...prev.activity[activity.id], answers: { ...currentAnswers, [questionId]: { answerIndex, correct: answerIndex === correctIndex } } } } }
-        });
+
+    const isCorrect = selectedAnswerIndex === currentQuestion.correctAnswerIndex;
+    const isIncorrect = selectedAnswerIndex !== null && !isCorrect;
+
+    const renderHeader = () => {
+        switch (activity.displayType) {
+            case 'number-ninja':
+            case 'measurement-master':
+            case 'data-detective':
+                return renderMathHeader(activity.name, activity.introText);
+            case 'science-explorer':
+            case 'life-cycles-lab':
+                return renderScienceHeader(activity.name, activity.introText);
+            case 'community-quest':
+            case 'leaders-and-citizens':
+                return renderSSHeader(activity.name, activity.introText);
+             case 'emotions-and-collaboration':
+                return renderSELHeader(activity.name, activity.introText);
+            case 'planning-and-organization':
+            case 'working-memory-game':
+                return renderEFHeader(activity.name, activity.introText);
+            default:
+                return renderGroupHeader(activity.name, activity.introText);
+        }
     };
     
-    if (loading) return <div className="flex items-center justify-center p-8"><Loader className="animate-spin mr-2" /> Preparing your detective mission...</div>;
-    if (error) return <div className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</div>;
-    if (!generatedContent) return <div className="p-4">Loading...</div>;
 
-    const renderSightWords = () => {
-        const scoredCount = Object.keys(activityState.answers || {}).filter(key => generatedContent.sightWords.includes(key)).length;
-        return (
-            <div className="space-y-4">
-                <div className="p-4 bg-sky-50/50 border border-sky-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-sky-900">🕵️‍♀️ Sight Word Speed Run</h3>
-                    <p className="text-sm">Have Sophia read each word. Mark if she was correct.</p>
+    if (!currentQuestion) {
+        return <div className="p-4 text-center">You've completed all the questions in this mission!</div>
+    }
+
+    return (
+        <div>
+            {renderHeader()}
+
+            <style>{`
+                @keyframes pop {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.07); }
+                    100% { transform: scale(1); }
+                }
+                .animate-pop {
+                    animation: pop 0.3s ease-out;
+                }
+            `}</style>
+            
+            <div className="p-4 border rounded-lg bg-white space-y-4">
+                <div className="flex justify-between items-center">
+                    <h4 className="font-semibold text-slate-800">Question {currentQuestionIndex + 1} of {questions.length}</h4>
+                    {selectedAnswerIndex !== null && (
+                         isCorrect ? 
+                         <span className="text-sm font-bold text-green-600 flex items-center gap-1"><Check className="w-4 h-4"/> Correct!</span> :
+                         <span className="text-sm font-bold text-red-600 flex items-center gap-1"><X className="w-4 h-4"/> Try again next time!</span>
+                    )}
                 </div>
-                <div className="space-y-2">
-                    {generatedContent.sightWords.map(word => {
-                        const answer = activityState.answers?.[word];
+
+                {currentQuestion.introText && <p className={`bg-slate-50 border p-3 rounded-md text-slate-600 ${isKidMode ? 'text-lg' : 'text-sm'}`}>{currentQuestion.introText}</p>}
+                
+                {currentQuestion.visual && <ActivityVisualRenderer visual={currentQuestion.visual} />}
+
+                <p className={`font-semibold ${isKidMode ? 'text-2xl' : 'text-lg'}`}>{currentQuestion.prompt}</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentQuestion.responseOptions?.map((option, index) => {
+                         const isSelected = selectedAnswerIndex === index;
+                         const isTheCorrectAnswer = index === currentQuestion.correctAnswerIndex;
+
                         return (
-                            <div key={word} className="flex justify-between items-center bg-white p-2 rounded-lg border">
-                                <span className="font-semibold text-lg">{word}</span>
-                                <div className="flex gap-2">
-                                    <Button size="icon" variant={answer?.correct === true ? 'default' : 'outline'} className="bg-green-100 text-green-700" onClick={() => handleSightWordScore(word, true)} disabled={isReadOnly || !!answer}><ThumbsUp /></Button>
-                                    <Button size="icon" variant={answer?.correct === false ? 'default' : 'outline'} className="bg-red-100 text-red-700" onClick={() => handleSightWordScore(word, false)} disabled={isReadOnly || !!answer}><ThumbsDown /></Button>
-                                </div>
-                            </div>
+                            <Button
+                                key={index}
+                                variant="outline"
+                                className={`h-auto py-3 whitespace-normal justify-start text-left transition-all duration-200 
+                                    ${isKidMode ? 'text-xl p-4' : ''}
+                                    ${selectedAnswerIndex !== null && isTheCorrectAnswer ? 'bg-green-100 border-green-400 text-green-800 ring-2 ring-green-300 animate-pop' : ''}
+                                    ${isSelected && !isTheCorrectAnswer ? 'bg-red-100 border-red-400 text-red-800' : ''}
+                                `}
+                                onClick={() => handleAnswer(index)}
+                                disabled={selectedAnswerIndex !== null}
+                            >
+                                {option}
+                            </Button>
                         )
                     })}
                 </div>
-                {scoredCount === generatedContent.sightWords.length && (
-                    <Button onClick={() => {setStage('rhymes'); setSubStageIndex(0);}} className="w-full">
-                        Next Mission: Rhyme Time <ArrowRight className="w-4 h-4 ml-2"/>
-                    </Button>
+
+                {currentQuestionIndex < questions.length - 1 && (
+                     <div className="flex justify-end pt-4">
+                         <Button onClick={() => setCurrentQuestionIndex(prev => prev + 1)} disabled={selectedAnswerIndex === null}>
+                            Next Question <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                     </div>
                 )}
             </div>
-        );
-    };
-    
-    const renderRhymes = () => {
-        const question = generatedContent.rhymes[subStageIndex];
-        const questionId = `rhyme-${subStageIndex}`;
-        const answer = activityState.answers?.[questionId];
-        const hasAnswered = answer !== undefined;
-
-        return (
-            <div className="space-y-4">
-                 <div className="p-4 bg-pink-50/50 border border-pink-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-pink-900">🎨 Rhyme Time</h3>
-                </div>
-                <div className="p-4 border rounded-lg">
-                    <p className="font-semibold text-center text-2xl">Which word rhymes with <span className="font-bold text-pink-600">{question.promptWord}</span>?</p>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                        {question.options.map((opt, idx) => {
-                             const isSelected = answer?.answerIndex === idx;
-                             let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-                             if (hasAnswered) {
-                                 if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                                 else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                             }
-                             return (
-                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
-                                    {opt}
-                                </Button>
-                             )
-                        })}
-                    </div>
-                </div>
-                {subStageIndex < generatedContent.rhymes.length - 1 && hasAnswered && (
-                     <Button onClick={() => setSubStageIndex(i => i + 1)} className="w-full">Next Rhyme</Button>
-                )}
-                 {subStageIndex === generatedContent.rhymes.length - 1 && hasAnswered && (
-                     <Button onClick={() => {setStage('syllables'); setSubStageIndex(0);}} className="w-full">Final Mission: Syllable Count <ArrowRight className="w-4 h-4 ml-2"/></Button>
-                )}
-            </div>
-        );
-    };
-
-    const renderSyllables = () => {
-         const question = generatedContent.syllables[subStageIndex];
-         const questionId = `syllable-${subStageIndex}`;
-         const answer = activityState.answers?.[questionId];
-         const hasAnswered = answer !== undefined;
-
-        return (
-             <div className="space-y-4">
-                <div className="p-4 bg-indigo-50/50 border border-indigo-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-indigo-900">👏 Syllable Count</h3>
-                </div>
-                <div className="p-4 border rounded-lg">
-                    <p className="font-semibold text-center text-2xl">How many syllables in <span className="font-bold text-indigo-600">{question.word}</span>?</p>
-                    <div className="mt-4 grid grid-cols-4 gap-2">
-                        {question.options.map((opt, idx) => {
-                            const isSelected = answer?.answerIndex === idx;
-                            let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-                            if (hasAnswered) {
-                                if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                                else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                            }
-                            return (
-                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
-                                    {opt}
-                                </Button>
-                            )
-                        })}
-                    </div>
-                </div>
-                {subStageIndex < generatedContent.syllables.length - 1 && hasAnswered && (
-                     <Button onClick={() => setSubStageIndex(i => i + 1)} className="w-full">Next Word</Button>
-                )}
-                 {subStageIndex === generatedContent.syllables.length - 1 && hasAnswered && (
-                     <div className="p-4 text-center bg-green-100 rounded-lg">
-                        <p className="font-bold text-green-800">Mission Complete, Word Detective!</p>
-                    </div>
-                )}
-            </div>
-        )
-    };
-    
-    if (stage === 'sight-words') return renderSightWords();
-    if (stage === 'rhymes') return renderRhymes();
-    if (stage === 'syllables') return renderSyllables();
-    return null;
+        </div>
+    )
 }
+const SinkOrSwimContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState }) => {
+    const items = activity.subItems || [];
 
-const SentenceBuilderContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [stage, setStage] = useState<'corrections' | 'contractions'>('corrections');
-    const [subStageIndex, setSubStageIndex] = useState(0);
-
-    const generatedContent = activityState.generated as SentenceBuilderGeneratedState | undefined;
-
-    const generateContent = async () => {
-        setLoading(true);
-        setError(null);
-        const prompt = `
-            Generate a set of "Writing & Grammar" activities for a ${activity.grade === 'K' ? 'Kindergartener' : `${activity.grade}st grader`}.
-            The set should include:
-            1. A list of 4 "sentence correction" questions. Each question should have an instruction (like "Choose the correct sentence.") and 4 sentence options, where only one is grammatically correct (e.g., proper capitalization, punctuation).
-            2. A list of 4 "contraction matching" questions. Each should have an uncontracted pair (like "do not") and 4 options, one being the correct contraction.
-        `;
-        try {
-             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: sentenceBuilderSchema,
-                },
-            });
-            const content: SentenceBuilderGeneratedState = JSON.parse(response.text);
-             setModel(prev => ({
+    const handlePrediction = (itemId: string, prediction: 'sink' | 'float') => {
+        const answerIndex = prediction === 'sink' ? 0 : 1;
+        setModel(prev => {
+            const currentAnswers = prev.activity[activity.id]?.answers || {};
+            return {
                 ...prev,
                 activity: {
                     ...prev.activity,
-                    [activity.id]: { ...prev.activity[activity.id], generated: content }
+                    [activity.id]: {
+                        ...prev.activity[activity.id],
+                        id: activity.id,
+                        answers: {
+                            ...currentAnswers,
+                            [itemId]: { answerIndex, correct: undefined } // Correctness is determined by the real experiment
+                        }
+                    }
                 }
-            }));
-        } catch (e) {
-            console.error(e);
-            setError("Oops! We had trouble building the grammar game. Please try starting again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    useEffect(() => {
-        if (!generatedContent && !loading && !error) {
-            generateContent();
-        }
-    }, [activity.id, generatedContent]);
-
-    const handleMcqAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
-        setModel(prev => {
-            const currentAnswers = prev.activity[activity.id]?.answers || {};
-            return { ...prev, activity: { ...prev.activity, [activity.id]: { ...prev.activity[activity.id], answers: { ...currentAnswers, [questionId]: { answerIndex, correct: answerIndex === correctIndex } } } } }
+            };
         });
     };
 
-    if (loading) return <div className="flex items-center justify-center p-8"><Loader className="animate-spin mr-2" /> Building your grammar game...</div>;
-    if (error) return <div className="text-red-600 p-4 bg-red-50 rounded-lg">{error}</div>;
-    if (!generatedContent) return <div className="p-4">Loading...</div>;
+    const answers = activityState.answers || {};
 
-    const renderCorrections = () => {
-        const question = generatedContent.sentenceCorrections[subStageIndex];
-        const questionId = `correction-${subStageIndex}`;
-        const answer = activityState.answers?.[questionId];
-        const hasAnswered = answer !== undefined;
-
-        return (
-            <div className="space-y-4">
-                <div className="p-4 bg-teal-50/50 border border-teal-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-teal-900">✏️ Sentence Fix-Up</h3>
-                </div>
-                <div className="p-4 border rounded-lg">
-                    <p className="font-semibold text-slate-800">{question.question}</p>
-                    <div className="mt-4 grid grid-cols-1 gap-2">
-                        {question.options.map((opt, idx) => {
-                             const isSelected = answer?.answerIndex === idx;
-                             let buttonClass = "justify-start text-left h-auto py-2 whitespace-normal";
-                             if (hasAnswered) {
-                                 if (isSelected) buttonClass += " bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                                 else buttonClass += " bg-slate-50 border-slate-200 opacity-60";
-                             }
-                            return (
-                                <Button key={idx} variant={isSelected ? 'default' : 'outline'} className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
-                                    {opt}
+    return (
+        <div>
+            {renderScienceHeader(activity.name, activity.introText)}
+            <div className="p-4 border rounded-lg bg-white space-y-4">
+                <p className="text-slate-600">For each item below, ask Sophia to predict whether it will sink or float in water. Record her prediction. After you're done, you can do the real experiment together with a bowl of water!</p>
+                
+                <div className="space-y-3">
+                    {items.map(item => (
+                        <div key={item.id} className="p-3 border rounded-md flex justify-between items-center bg-slate-50">
+                            <span className="font-semibold">{item.name}</span>
+                            <div className="flex gap-2">
+                                <Button 
+                                    size="sm" 
+                                    className={answers[item.id]?.answerIndex === 0 ? 'bg-sky-600' : 'bg-sky-400'}
+                                    onClick={() => handlePrediction(item.id, 'sink')}
+                                >
+                                    <Anchor className="w-4 h-4 mr-2"/> Sink
                                 </Button>
-                            )
-                        })}
-                    </div>
-                </div>
-                 {subStageIndex < generatedContent.sentenceCorrections.length - 1 && hasAnswered && (
-                     <Button onClick={() => setSubStageIndex(i => i + 1)} className="w-full">Next Question</Button>
-                )}
-                 {subStageIndex === generatedContent.sentenceCorrections.length - 1 && hasAnswered && (
-                     <Button onClick={() => {setStage('contractions'); setSubStageIndex(0);}} className="w-full">Next Challenge: Contraction Action <ArrowRight className="w-4 h-4 ml-2"/></Button>
-                )}
-            </div>
-        )
-    };
-    
-    const renderContractions = () => {
-        const question = generatedContent.contractions[subStageIndex];
-        const questionId = `contraction-${subStageIndex}`;
-        const answer = activityState.answers?.[questionId];
-        const hasAnswered = answer !== undefined;
-        return (
-             <div className="space-y-4">
-                <div className="p-4 bg-orange-50/50 border border-orange-200 rounded-lg">
-                    <h3 className="text-lg font-bold text-orange-900">⚡️ Contraction Action</h3>
-                </div>
-                <div className="p-4 border rounded-lg">
-                    <p className="font-semibold text-center text-2xl">What is the contraction for <span className="font-bold text-orange-600">{question.uncontracted}</span>?</p>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                        {question.options.map((opt, idx) => {
-                            const isSelected = answer?.answerIndex === idx;
-                             let buttonClass = "";
-                             if (hasAnswered) {
-                                 if (isSelected) buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                                 else buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                             }
-                            return (
-                                <Button key={idx} variant="outline" className={buttonClass} onClick={() => handleMcqAnswer(questionId, idx, question.correctAnswerIndex)} disabled={isReadOnly || hasAnswered}>
-                                    {opt}
+                                <Button 
+                                    size="sm" 
+                                    className={answers[item.id]?.answerIndex === 1 ? 'bg-amber-600' : 'bg-amber-400'}
+                                    onClick={() => handlePrediction(item.id, 'float')}
+                                >
+                                    <Droplets className="w-4 h-4 mr-2"/> Float
                                 </Button>
-                            )
-                        })}
-                    </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                {subStageIndex < generatedContent.contractions.length - 1 && hasAnswered && (
-                     <Button onClick={() => setSubStageIndex(i => i + 1)} className="w-full">Next Question</Button>
-                )}
-                {subStageIndex === generatedContent.contractions.length - 1 && hasAnswered && (
-                     <div className="p-4 text-center bg-green-100 rounded-lg">
-                        <p className="font-bold text-green-800">Awesome Job, Sentence Builder!</p>
-                    </div>
-                )}
             </div>
-        )
-    };
-    
-    if (stage === 'corrections') return renderCorrections();
-    if (stage === 'contractions') return renderContractions();
-    return null;
+        </div>
+    );
 };
 
 
-const GroupedStaticMCQContent: React.FC<GeneratedContentProps> = ({ activity, setModel, activityState, isReadOnly }) => {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
-    setModel(prev => {
-        const currentAnswers = prev.activity[activity.id]?.answers || {};
-        const isCorrect = answerIndex === correctIndex;
-        return {
+
+// Fallback for non-grouped virtual activities
+const DefaultVirtualContent: React.FC<GeneratedContentProps> = ({ activity, activityState, setModel }) => {
+     const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
+
+    const handleAnswer = (answerIndex: number) => {
+        if (selectedAnswerIndex !== null) return;
+        setSelectedAnswerIndex(answerIndex);
+        const isCorrect = answerIndex === activity.correctAnswerIndex;
+        
+         setModel(prev => ({
             ...prev,
             activity: {
                 ...prev.activity,
                 [activity.id]: {
                     ...prev.activity[activity.id],
-                    answers: {
-                        ...currentAnswers,
-                        [questionId]: { answerIndex, correct: isCorrect }
-                    }
+                    id: activity.id,
+                    answers: { [activity.id]: { answerIndex, correct: isCorrect } }
                 }
             }
-        }
-    });
-  };
-
-  const currentSubItem = activity.subItems?.[currentQuestionIndex];
-
-  if (!activity.subItems || !currentSubItem) {
-    return <div className="p-4 bg-red-50 text-red-700 rounded-lg">This activity is missing questions.</div>
-  }
-
-  const currentAnswer = activityState.answers?.[currentSubItem.id];
-  const hasAnswered = currentAnswer !== undefined;
-  
-  const totalQuestions = activity.subItems.length;
-
-  const headerConfig = {
-    'number-ninja': {
-      title: '🥷 Number Ninja Challenge',
-      bg: 'bg-blue-50/50',
-      border: 'border-blue-200',
-      text: 'text-blue-900',
-    },
-    'measurement-master': {
-      title: '📏 Measurement Master',
-      bg: 'bg-purple-50/50',
-      border: 'border-purple-200',
-      text: 'text-purple-900',
-    },
-    'data-detective': {
-      title: '📊 Data Detective',
-      bg: 'bg-indigo-50/50',
-      border: 'border-indigo-200',
-      text: 'text-indigo-900',
-    },
-    'science-explorer': {
-      title: '🔬 Science Explorer',
-      bg: 'bg-green-50/50',
-      border: 'border-green-200',
-      text: 'text-green-900',
-    },
-    'life-cycles-lab': {
-      title: '🌱 Life Cycles Lab',
-      bg: 'bg-lime-50/50',
-      border: 'border-lime-200',
-      text: 'text-lime-900',
-    },
-    'community-quest': {
-        title: '🗺️ Community Quest',
-        bg: 'bg-orange-50/50',
-        border: 'border-orange-200',
-        text: 'text-orange-900',
-    },
-    'leaders-and-citizens': {
-        title: '👑 Leaders & Citizens',
-        bg: 'bg-yellow-50/50',
-        border: 'border-yellow-200',
-        text: 'text-yellow-900',
-    },
-    'emotions-and-collaboration': {
-        title: '💖 Friendship & Feelings',
-        bg: 'bg-pink-50/50',
-        border: 'border-pink-200',
-        text: 'text-pink-900',
-    },
-    'planning-and-organization': {
-        title: '🚀 Super Organizer',
-        bg: 'bg-rose-50/50',
-        border: 'border-rose-200',
-        text: 'text-rose-900',
-    },
-    'working-memory-game': {
-        title: '🧠 Memory Master',
-        bg: 'bg-fuchsia-50/50',
-        border: 'border-fuchsia-200',
-        text: 'text-fuchsia-900',
+        }));
     }
-  }
-  const config = headerConfig[activity.displayType as keyof typeof headerConfig] || headerConfig['number-ninja'];
 
-  return (
-    <div className="space-y-4">
-      <div className={`p-4 rounded-lg ${config.bg} ${config.border}`}>
-        <h3 className={`text-lg font-bold ${config.text}`}>{config.title}</h3>
-        {activity.introText && <p className="text-sm mt-1">{activity.introText}</p>}
-      </div>
-
-      {currentSubItem.introText && (
-        <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">
-          <p>{currentSubItem.introText}</p>
-        </div>
-      )}
-      
-      {currentSubItem.visual && <ActivityVisualRenderer visual={currentSubItem.visual} />}
-
-      <div className="p-4 border rounded-lg bg-white">
-        <p className="font-semibold text-slate-800">{currentQuestionIndex + 1}. {currentSubItem.prompt}</p>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {currentSubItem.responseOptions?.map((option, index) => {
-            const isSelected = currentAnswer?.answerIndex === index;
-            
-            let buttonClass = "bg-white hover:bg-slate-100 border-slate-200";
-
-            if (hasAnswered) {
-                if (isSelected) {
-                    buttonClass = "bg-blue-100 border-blue-300 text-blue-900 ring-2 ring-blue-300";
-                } else {
-                    buttonClass = "bg-slate-50 border-slate-200 opacity-60";
-                }
-            }
-
-            return (
-              <Button
-                key={index}
-                variant="outline"
-                disabled={isReadOnly || hasAnswered}
-                className={`justify-start h-auto py-2 text-left whitespace-normal ${buttonClass}`}
-                onClick={() => handleAnswer(currentSubItem.id, index, currentSubItem.correctAnswerIndex!)}
-              >
-                {option}
-              </Button>
-            );
-          })}
-        </div>
-      </div>
-      <div className="flex justify-between items-center">
-        <Button variant="outline" onClick={() => setCurrentQuestionIndex(i => i - 1)} disabled={currentQuestionIndex === 0}>Back</Button>
-        <span className="text-sm font-medium">{currentQuestionIndex + 1} / {totalQuestions}</span>
-        {currentQuestionIndex < totalQuestions -1 ? (
-             <Button variant="default" onClick={() => setCurrentQuestionIndex(i => i + 1)} disabled={!hasAnswered}>Next</Button>
-        ) : (
-            <div className="p-2 text-center text-sm font-semibold text-green-700 bg-green-100 rounded-md">
-                <Check className="inline-block w-4 h-4 mr-1"/> All done!
+    return (
+        <div className="space-y-4">
+            {activity.visual && <ActivityVisualRenderer visual={activity.visual} />}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {activity.responseOptions?.map((option, index) => (
+                     <Button
+                        key={index}
+                        variant="outline"
+                        className={`h-auto py-3 whitespace-normal justify-start text-left transition-all duration-200 
+                            ${selectedAnswerIndex === index && index === activity.correctAnswerIndex ? 'bg-green-100 border-green-400' : ''}
+                            ${selectedAnswerIndex === index && index !== activity.correctAnswerIndex ? 'bg-red-100 border-red-400' : ''}
+                        `}
+                        onClick={() => handleAnswer(index)}
+                        disabled={selectedAnswerIndex !== null}
+                    >
+                        {option}
+                    </Button>
+                ))}
             </div>
-        )}
-      </div>
+        </div>
+    )
+}
+const OfflineContent: React.FC = () => (
+    <div className="p-4 rounded-lg bg-slate-100 text-center">
+        <p className="text-slate-600 font-semibold">This is an offline or recording-based activity.</p>
+        <p className="text-sm text-slate-500">Follow the instructions and use the observer tools below when you're ready.</p>
     </div>
-  );
-};
+)
 
-// FIX: Add a main dispatcher component and export it to resolve the import error in ActivityCard.
+
 export const GeneratedContent: React.FC<GeneratedContentProps> = (props) => {
   const { activity } = props;
 
-  // For grouped activities, the displayType determines the renderer.
+  if (activity.type !== 'virtual') {
+    return <OfflineContent />;
+  }
+
+  if (activity.displayType === 'sink-or-swim-mission') {
+    return <SinkOrSwimContent {...props} />;
+  }
+
   if (activity.isGrouped) {
     switch (activity.displayType) {
-      case 'story-time':
-        return <GroupedActivityContent {...props} />;
-      case 'word-detective':
-        return <WordDetectiveContent {...props} />;
-      case 'sentence-builder':
-        return <SentenceBuilderContent {...props} />;
-      // All other grouped MCQs use the static renderer
-      case 'number-ninja':
-      case 'measurement-master':
-      case 'data-detective':
-      case 'science-explorer':
-      case 'life-cycles-lab':
-      case 'community-quest':
-      case 'leaders-and-citizens':
-      case 'emotions-and-collaboration':
-      case 'planning-and-organization':
-      case 'working-memory-game':
-        return <GroupedStaticMCQContent {...props} />;
-      default:
-        return null;
+        // AI-generated ones can come here in the future
+        case 'story-time':
+        case 'word-detective':
+        case 'sentence-builder':
+           return <p>This AI content type is not yet implemented.</p>
+
+        // Handle all static grouped missions
+        default:
+            return <GroupedStaticMCQContent {...props} />;
     }
   }
 
-  // Handle non-grouped virtual activities that only have a visual and a prompt.
-  if (activity.visual) {
-    return <ActivityVisualRenderer visual={activity.visual} />;
-  }
-  
-  // Fallback for other activity types (like offline, recording, or simple virtual)
-  // that don't have custom generated content to display during the 'running' phase.
-  return null;
+  // Fallback for single, non-grouped virtual activities
+  return <DefaultVirtualContent {...props} />;
 };

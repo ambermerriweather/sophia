@@ -15,6 +15,16 @@ interface DomainTabsProps {
   domains: Domain[];
 }
 
+const domainBgColors: Record<string, string> = {
+  'reading-&-language-arts': 'bg-green-50/50',
+  'mathematics': 'bg-yellow-50/50',
+  'science': 'bg-sky-50/50',
+  'social-studies': 'bg-orange-50/50',
+  'social-emotional-learning': 'bg-pink-50/50',
+  'executive-functioning': 'bg-purple-50/50'
+};
+
+
 export const DomainTabs: React.FC<DomainTabsProps> = ({ model, setModel, setView, domains }) => {
     const handleDomainNotesChange = (domainKey: string, notes: string) => {
         setModel(prev => ({
@@ -45,7 +55,7 @@ export const DomainTabs: React.FC<DomainTabsProps> = ({ model, setModel, setView
         )}
       </div>
       {domains.map(domain => (
-        <TabsContent key={domain.key} value={domain.key}>
+        <TabsContent key={domain.key} value={domain.key} className={`p-4 rounded-xl border ${domainBgColors[domain.key] || 'bg-white'}`}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {domain.activities.length > 0 ? domain.activities.map(activity => (
               <ActivityCard key={activity.id} activity={activity} model={model} setModel={setModel} />

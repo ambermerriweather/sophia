@@ -2285,10 +2285,16 @@ export const packData = {
               "id": "sc-inquiry-K-6",
               "title": "Sink or Swim?",
               "type": "virtual",
-              "displayType": "sink-or-swim",
               "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
               "grade": "K",
-              "scoring": "manual"
+              "scoring": "manual",
+              "subItems": [
+                { "id": "sc-sos-K-1", "name": "A metal key", "prompt": "A metal key" },
+                { "id": "sc-sos-K-2", "name": "A leaf", "prompt": "A leaf" },
+                { "id": "sc-sos-K-3", "name": "A plastic spoon", "prompt": "A plastic spoon" },
+                { "id": "sc-sos-K-4", "name": "A small rock", "prompt": "A small rock" },
+                { "id": "sc-sos-K-5", "name": "A rubber duck", "prompt": "A rubber duck" }
+              ]
             },
             {
               "id": "sc-inquiry-K-7",
@@ -2415,10 +2421,16 @@ export const packData = {
               "id": "sc-inquiry-1-6",
               "title": "Sink or Swim?",
               "type": "virtual",
-              "displayType": "sink-or-swim",
               "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
               "grade": "1",
-              "scoring": "manual"
+              "scoring": "manual",
+               "subItems": [
+                { "id": "sc-sos-1-1", "name": "An apple slice", "prompt": "An apple slice" },
+                { "id": "sc-sos-1-2", "name": "A crayon", "prompt": "A crayon" },
+                { "id": "sc-sos-1-3", "name": "A paper clip", "prompt": "A paper clip" },
+                { "id": "sc-sos-1-4", "name": "A small toy car", "prompt": "A small toy car" },
+                { "id": "sc-sos-1-5", "name": "A coin (penny)", "prompt": "A coin (penny)" }
+              ]
             },
              {
               "id": "sc-inquiry-1-7",
@@ -2545,10 +2557,16 @@ export const packData = {
               "id": "sc-inquiry-2-6",
               "title": "Sink or Swim?",
               "type": "virtual",
-              "displayType": "sink-or-swim",
               "prompt": "Let's be scientists and predict! For each item, guess if it will sink to the bottom or float on the water. Then, test your predictions with a bowl of water!",
               "grade": "2",
-              "scoring": "manual"
+              "scoring": "manual",
+              "subItems": [
+                { "id": "sc-sos-2-1", "name": "A grape", "prompt": "A grape" },
+                { "id": "sc-sos-2-2", "name": "An unpeeled orange", "prompt": "An unpeeled orange" },
+                { "id": "sc-sos-2-3", "name": "A peeled orange", "prompt": "A peeled orange" },
+                { "id": "sc-sos-2-4", "name": "A bottle cap", "prompt": "A bottle cap" },
+                { "id": "sc-sos-2-5", "name": "A wooden craft stick", "prompt": "A wooden craft stick" }
+              ]
             },
              {
               "id": "sc-inquiry-2-7",

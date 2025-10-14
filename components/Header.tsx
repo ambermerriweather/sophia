@@ -7,6 +7,7 @@ import { Switch } from './ui/Switch.tsx';
 import { Input } from './ui/Input.tsx';
 import { GradeSelector } from './GradeSelector.tsx';
 import { DOMAINS } from '../../constants.ts'; // Import for overall progress calculation
+import { Mascot } from './Mascot.tsx';
 
 interface HeaderProps {
   model: Model;
@@ -44,12 +45,15 @@ export const Header: React.FC<HeaderProps> = ({ model, setModel, selectedGrade, 
 
   return (
     <header className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-800">Sophia’s {gradeDisplayName} Playcheck</h1>
-        <p className="mt-2 text-lg text-slate-600">An informal, play-based check-in on skills and development.</p>
+      <div className="text-center flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Mascot className="w-24 h-24" />
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-800">Sophia’s {gradeDisplayName} Playcheck</h1>
+          <p className="mt-2 text-lg text-slate-600">An informal, play-based check-in on skills and development.</p>
+        </div>
       </div>
 
-      <div className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/80 space-y-4">
+      <div className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-rose-200/80 space-y-4">
         <GradeSelector selectedGrade={selectedGrade} setSelectedGrade={setSelectedGrade} />
         <p className="text-center text-sm text-slate-600 max-w-3xl mx-auto">
             This tool lets us check in on skills any time across the first three years of her education. Let's start with <strong>1st Grade</strong> to get a baseline. We can bridge up or down depending on how she does, but we should never test all three grades on the same day—that would be overwhelming!
