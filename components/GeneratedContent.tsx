@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Type } from "@google/genai";
 import { getAiClient } from '../lib/utils.ts';
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../types.ts';
 import { Button } from './ui/Button.tsx';
@@ -307,98 +306,18 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
 
 // --- END VISUAL COMPONENTS ---
 
-
-const storyTimeSchema = {
-    type: Type.OBJECT,
-    properties: {
-        story: { type: Type.STRING, description: 'A 4-5 sentence story for a child at the specified grade level. The story should be simple, engaging, and appropriate for early readers.' },
-        questions: {
-            type: Type.ARRAY,
-            description: 'A list of 3-4 multiple-choice questions about the story.',
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    question: { type: Type.STRING },
-                    options: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    correctAnswerIndex: { type: Type.INTEGER }
-                },
-                required: ['question', 'options', 'correctAnswerIndex']
-            }
-        }
-    },
-    required: ['story', 'questions']
-};
-
-const wordDetectiveSchema = {
-    type: Type.OBJECT,
-    properties: {
-        sightWords: {
-            type: Type.ARRAY,
-            description: "A list of 5 grade-appropriate high-frequency sight words.",
-            items: { type: Type.STRING }
-        },
-        rhymes: {
-            type: Type.ARRAY,
-            description: "A list of 2-3 rhyming challenges.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    promptWord: { type: Type.STRING, description: "The word to find a rhyme for." },
-                    options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 options, one of which rhymes." },
-                    correctAnswerIndex: { type: Type.INTEGER }
-                },
-                required: ['promptWord', 'options', 'correctAnswerIndex']
-            }
-        },
-        syllables: {
-            type: Type.ARRAY,
-            description: "A list of 2-3 syllable counting challenges.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    word: { type: Type.STRING, description: "The word to count syllables for." },
-                    options: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "4 number options for syllable count." },
-                    correctAnswerIndex: { type: Type.INTEGER }
-                },
-                required: ['word', 'options', 'correctAnswerIndex']
-            }
-        }
-    },
-    required: ['sightWords', 'rhymes', 'syllables']
-};
-
-const sentenceBuilderSchema = {
-    type: Type.OBJECT,
-    properties: {
-        sentenceCorrections: {
-            type: Type.ARRAY,
-            description: "A list of 2-3 sentence correction challenges.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    question: { type: Type.STRING, description: "An incorrect sentence to be corrected." },
-                    options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 options, one of which is the correct sentence." },
-                    correctAnswerIndex: { type: Type.INTEGER }
-                },
-                required: ['question', 'options', 'correctAnswerIndex']
-            }
-        },
-        contractions: {
-            type: Type.ARRAY,
-            description: "A list of 2-3 contraction matching challenges.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    uncontracted: { type: Type.STRING, description: "Two words to be made into a contraction (e.g., 'do not')." },
-                    options: { type: Type.ARRAY, items: { type: Type.STRING }, description: "4 options, one of which is the correct contraction." },
-                    correctAnswerIndex: { type: Type.INTEGER }
-                },
-                required: ['uncontracted', 'options', 'correctAnswerIndex']
-            }
-        }
-    },
-    required: ['sentenceCorrections', 'contractions']
-};
+const getJsonInstruction = (displayType: Activity['displayType']) => {
+    switch (displayType) {
+        case 'story-time':
+            return `Format the output as a single, clean JSON object with two keys: "story" (a string of 4-5 sentences) and "questions" (an array of 3-4 objects). Each question object must have keys: "question" (string), "options" (an array of 4 strings), and "correctAnswerIndex" (an integer from 0-3). Do not include any other text or markdown formatting.`;
+        case 'word-detective':
+            return `Format the output as a single, clean JSON object with three keys: "sightWords" (an array of 5 strings), "rhymes" (an array of 2-3 objects), and "syllables" (an array of 2-3 objects). Each "rhyme" object must have keys: "promptWord" (string), "options" (array of 4 strings), and "correctAnswerIndex" (integer). Each "syllable" object must have keys: "word" (string), "options" (array of 4 numbers), and "correctAnswerIndex" (integer). Do not include any other text or markdown formatting.`;
+        case 'sentence-builder':
+            return `Format the output as a single, clean JSON object with two keys: "sentenceCorrections" (an array of 2-3 objects) and "contractions" (an array of 2-3 objects). Each "sentenceCorrection" object needs "question", "options", "correctAnswerIndex". Each "contraction" object needs "uncontracted", "options", "correctAnswerIndex". Do not include any other text or markdown formatting.`;
+        default:
+            return '';
+    }
+}
 
 /**
  * A robust function to find and parse a JSON object from a string.
@@ -465,53 +384,48 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             setLoading(true);
             setError(null);
 
-            let schema;
             let prompt = activity.prompt;
             
             if (model.settings.scaffolds) {
                 prompt += ` Please make the content and questions particularly easy and clear, suitable for a child who may need extra support.`
             }
 
+            const jsonInstruction = getJsonInstruction(activity.displayType);
+             if (!jsonInstruction) {
+                setLoading(false);
+                return;
+            }
+
             switch (activity.displayType) {
                 case 'story-time':
-                    schema = storyTimeSchema;
                     prompt += ` The story should be at a ${activity.grade} grade reading level.`
                     break;
                 case 'word-detective':
-                    schema = wordDetectiveSchema;
                     prompt += ` The words should be appropriate for a ${activity.grade} grader.`
                     break;
                 case 'sentence-builder':
-                    schema = sentenceBuilderSchema;
                     prompt += ` The sentences and contractions should be appropriate for a ${activity.grade} grader.`
                     break;
-                default:
-                    setLoading(false);
-                    return;
             }
+            
+            const finalPrompt = `${prompt}\n\n${jsonInstruction}`;
 
             try {
+                // PRIMARY ATTEMPT: Use a more powerful model for better reliability.
                 const response = await getAiClient().models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: prompt,
-                    config: {
-                        responseMimeType: "application/json",
-                        responseSchema: schema,
-                    },
+                    model: 'gemini-2.5-pro',
+                    contents: finalPrompt,
                 });
 
                 const candidate = response.candidates?.[0];
                 if (!candidate || (candidate.finishReason && candidate.finishReason !== 'STOP')) {
                      const reason = candidate?.finishReason || response.promptFeedback?.blockReason || 'Unknown';
-                     if (reason === 'SAFETY') {
-                        throw new Error(`Content generation was blocked due to safety filters. Reason: ${reason}`);
-                     }
-                     throw new Error(`Content generation failed before completion. Reason: ${reason}`);
+                     throw new Error(`Primary generation failed. Reason: ${reason}`);
                 }
                 
                 const rawText = response.text;
                 if (!rawText) {
-                    throw new Error("Received an empty response from the API.");
+                    throw new Error("Received an empty response from the primary API.");
                 }
 
                 const data = extractAndParseJson(rawText);
@@ -525,16 +439,51 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                 }));
 
             } catch (err) {
-                console.error("Error generating content:", err);
-                let errorMessage = "Sorry, I couldn't create the activity. Please try resetting the activity.";
-                if (err instanceof Error) {
-                    if (err.message.includes("SAFETY") || err.message.includes("blocked")) {
-                        errorMessage = "The AI couldn't create this activity due to safety filters. Please try resetting or choose another activity.";
-                    } else if (err.message.toLowerCase().includes("json") || err.message.toLowerCase().includes("parse")) {
-                        errorMessage = "There was a problem understanding the AI's response. Please try resetting.";
+                console.error("Primary content generation failed:", err);
+                
+                // FALLBACK ATTEMPT: If the primary fails, try a simpler request.
+                try {
+                    console.log("Attempting fallback generation with gemini-2.5-flash...");
+                    const fallbackPrompt = `Create one simple, grade-appropriate multiple choice question based on the following topic: "${activity.name}". The question should be suitable for a ${activity.grade} grader. Format the output as a single, clean JSON object with the keys "question", "options" (an array of 4 strings), and "correctAnswerIndex" (a number). Do not include any other text, formatting, or markdown.`;
+            
+                    const fallbackResponse = await getAiClient().models.generateContent({
+                        model: 'gemini-2.5-flash',
+                        contents: fallbackPrompt,
+                    });
+
+                    const fallbackRawText = fallbackResponse.text;
+                    if (!fallbackRawText) {
+                        throw new Error("Fallback API call returned an empty response.");
                     }
+                    const fallbackMCQ = extractAndParseJson(fallbackRawText);
+                    
+                    let data;
+                    switch (activity.displayType) {
+                        case 'story-time':
+                            data = { story: "Let's try this fun question instead!", questions: [fallbackMCQ] };
+                            break;
+                        case 'word-detective':
+                            // Adapt to the expected structure, even if it's just one part
+                            data = { sightWords: [], rhymes: [{ ...fallbackMCQ, promptWord: "Rhyme for this question:" }], syllables: [] };
+                            break;
+                        case 'sentence-builder':
+                            data = { sentenceCorrections: [fallbackMCQ], contractions: [] };
+                            break;
+                        default:
+                            data = { story: "Here is your activity:", questions: [fallbackMCQ] };
+                    }
+                    
+                    setModel(prev => ({
+                        ...prev,
+                        activity: {
+                            ...prev.activity,
+                            [activity.id]: { ...prev.activity[activity.id], id: activity.id, generated: data },
+                        },
+                    }));
+                } catch (fallbackErr) {
+                    console.error("Fallback content generation also failed:", fallbackErr);
+                    setError("Sorry, I couldn't create the activity. Please try resetting the activity.");
                 }
-                setError(errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -698,34 +647,44 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
              const wordData = generatedContent as WordDetectiveGeneratedState;
              return wordData ? (
                 <div className="space-y-6">
-                    <div>
-                        <h4 className="font-semibold text-lg mb-2">Sight Words Practice</h4>
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap justify-center gap-4">
-                           {wordData.sightWords.map(word => <div key={word} className="px-4 py-2 bg-white rounded-md shadow-sm font-bold text-xl">{word}</div>)}
+                    {wordData.sightWords && wordData.sightWords.length > 0 && (
+                        <div>
+                            <h4 className="font-semibold text-lg mb-2">Sight Words Practice</h4>
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap justify-center gap-4">
+                            {wordData.sightWords.map(word => <div key={word} className="px-4 py-2 bg-white rounded-md shadow-sm font-bold text-xl">{word}</div>)}
+                            </div>
                         </div>
-                    </div>
-                    <div className="space-y-4">
-                         <h4 className="font-semibold text-lg">Rhyming Riddles</h4>
-                         {wordData.rhymes.map((q, i) => renderMCQ(q, i, 'rhyme'))}
-                    </div>
-                    <div className="space-y-4">
-                         <h4 className="font-semibold text-lg">Syllable Count</h4>
-                         {wordData.syllables.map((q, i) => renderMCQ(q, i, 'syllable'))}
-                    </div>
+                    )}
+                    {wordData.rhymes && wordData.rhymes.length > 0 && (
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-lg">Rhyming Riddles</h4>
+                            {wordData.rhymes.map((q, i) => renderMCQ(q, i, 'rhyme'))}
+                        </div>
+                    )}
+                    {wordData.syllables && wordData.syllables.length > 0 && (
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-lg">Syllable Count</h4>
+                            {wordData.syllables.map((q, i) => renderMCQ(q, i, 'syllable'))}
+                        </div>
+                    )}
                 </div>
              ) : null;
         case 'sentence-builder':
             const sentenceData = generatedContent as SentenceBuilderGeneratedState;
             return sentenceData ? (
                 <div className="space-y-6">
-                    <div className="space-y-4">
-                         <h4 className="font-semibold text-lg">Fix the Sentence</h4>
-                         {sentenceData.sentenceCorrections.map((q, i) => renderMCQ(q, i, 'correction'))}
-                    </div>
-                    <div className="space-y-4">
-                         <h4 className="font-semibold text-lg">Find the Contraction</h4>
-                         {sentenceData.contractions.map((q, i) => renderMCQ(q, i, 'contraction'))}
-                    </div>
+                    {sentenceData.sentenceCorrections && sentenceData.sentenceCorrections.length > 0 && (
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-lg">Fix the Sentence</h4>
+                            {sentenceData.sentenceCorrections.map((q, i) => renderMCQ(q, i, 'correction'))}
+                        </div>
+                    )}
+                    {sentenceData.contractions && sentenceData.contractions.length > 0 && (
+                        <div className="space-y-4">
+                            <h4 className="font-semibold text-lg">Find the Contraction</h4>
+                            {sentenceData.contractions.map((q, i) => renderMCQ(q, i, 'contraction'))}
+                        </div>
+                    )}
                 </div>
             ) : null;
         case 'sink-or-swim-mission':
