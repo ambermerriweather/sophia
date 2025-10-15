@@ -4,8 +4,15 @@ import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetective
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight, Droplets, Anchor, X } from 'lucide-react';
 
-// FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+// Lazily initialize the AI client to avoid accessing process.env before it's available.
+let ai: GoogleGenAI | null = null;
+const getAiClient = () => {
+    if (!ai) {
+        // FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
+        ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+    }
+    return ai;
+};
 
 interface GeneratedContentProps {
     activity: Activity;
@@ -442,7 +449,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             }
 
             try {
-                const response = await ai.models.generateContent({
+                const response = await getAiClient().models.generateContent({
                     model: 'gemini-2.5-flash',
                     contents: prompt,
                     config: {

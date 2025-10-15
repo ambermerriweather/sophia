@@ -2,8 +2,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { Model, Domain, ActivityState, Activity } from '../types.ts';
 
-// FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+// Lazily initialize the AI client to avoid accessing process.env before it's available.
+let ai: GoogleGenAI | null = null;
+const getAiClient = () => {
+    if (!ai) {
+        // FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
+        ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+    }
+    return ai;
+};
 
 // Helper to get all activities from a given set of domains
 const getActivitiesFromDomains = (domains: Domain[]): Activity[] => {
@@ -199,7 +206,7 @@ export const emailResults = async (model: Model, domains: Domain[]): Promise<{ o
 
     try {
         // FIX: Removed API key check as per guidelines, assuming key is always present.
-        const response = await ai.models.generateContent({
+        const response = await getAiClient().models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
