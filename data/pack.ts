@@ -3189,7 +3189,7 @@ export const packData = {
               "prompt": "Sophia, choose what belongs on a map key.",
               "grade": "1",
               "scoring": "auto",
-              "introText": "A map key, or legend, uses symbols, colors, and lines to show you information on a map, like where rivers, roads, or parks are.",
+              "introText": "A map key, also called a legend, is like a dictionary for a map. It's a special box that lists all the symbols used on the map and tells you what each one means.",
               "responseOptions": ["Feelings", "Songs", "Hours", "Symbols"],
               "correctAnswerIndex": 3
             },

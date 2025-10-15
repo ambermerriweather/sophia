@@ -1,7 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { Mascot } from './Mascot';
-import { Button } from './ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/Card.tsx';
+import { Mascot } from './Mascot.tsx';
+import { Button } from './ui/Button.tsx';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -13,13 +13,13 @@ interface ErrorBoundaryState {
 }
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  // FIX: Rewrote state initialization to use a constructor for broader compatibility, which can resolve obscure type errors regarding `this.props`.
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = {
-      hasError: false,
-    };
-  }
+  // FIX: Replaced constructor with a state class property initializer.
+  // This correctly declares the `state` property on the class instance,
+  // resolving TypeScript errors about `this.state` and `this.props` not existing.
+  public state: ErrorBoundaryState = {
+    hasError: false,
+    error: undefined,
+  };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
