@@ -13,6 +13,9 @@ interface GeneratedContentProps {
     isReadOnly: boolean;
 }
 
+// Define which activity types require AI content generation.
+const AI_GENERATED_TYPES = new Set(['story-time', 'word-detective', 'sentence-builder']);
+
 // --- VISUAL COMPONENTS ---
 
 const Clock: React.FC<{ time: string }> = ({ time }) => {
@@ -437,10 +440,13 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
     }, [activity.id, activity.displayType, activity.prompt, activity.grade, model.settings.scaffolds, setModel]);
 
     useEffect(() => {
-        if (!generatedContent && activity.isGrouped) {
+        // FIX: Only trigger AI content generation for designated activity types.
+        // This prevents unnecessary and failing API calls for static grouped content
+        // like 'number-ninja', 'science-explorer', etc.
+        if (!generatedContent && activity.isGrouped && AI_GENERATED_TYPES.has(activity.displayType!)) {
             generateContent();
         }
-    }, [activity.id, generatedContent, activity.isGrouped, generateContent]);
+    }, [activity.id, activity.displayType, generatedContent, activity.isGrouped, generateContent]);
 
     const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
         if (isReadOnly) return;
