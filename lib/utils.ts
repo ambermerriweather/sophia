@@ -2,9 +2,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { Model, Domain, ActivityState, Activity } from '../types.ts';
 
-// FIX: Use process.env.API_KEY as per Gemini API guidelines. This also resolves the TypeScript error with import.meta.env.
-const API_KEY = process.env.API_KEY;
-const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
+// FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 // Helper to get all activities from a given set of domains
 const getActivitiesFromDomains = (domains: Domain[]): Activity[] => {
@@ -199,11 +198,7 @@ export const emailResults = async (model: Model, domains: Domain[]): Promise<{ o
     `;
 
     try {
-        if (!ai) {
-            // FIX: Updated error message to reflect the change to process.env.API_KEY.
-            console.error("API_KEY not configured. Skipping email generation.");
-            return { ok: false };
-        }
+        // FIX: Removed API key check as per guidelines, assuming key is always present.
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
