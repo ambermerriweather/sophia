@@ -2644,6 +2644,39 @@ export const packData = {
               "timerRequired": true,
               "traumaInformedNotes": "Offer choice, normalize effort, allow movement/water breaks, avoid time pressure language.",
               "successStickerTags": ["effort", "inquiry"]
+            },
+            {
+              "id": "sc-inquiry-K-13",
+              "title": "Water Puzzle",
+              "type": "virtual",
+              "prompt": "If you put water in the freezer, what does it become?",
+              "grade": "K",
+              "scoring": "auto",
+              "introText": "Water can change! When it gets very cold, it turns into a solid. When it gets hot, it turns into a gas called steam.",
+              "responseOptions": ["Ice (solid)", "Steam (gas)", "Juice", "It disappears"],
+              "correctAnswerIndex": 0
+            },
+            {
+              "id": "sc-inquiry-1-13",
+              "title": "Science Question Detective",
+              "type": "virtual",
+              "prompt": "Which of these questions can you answer with an experiment?",
+              "grade": "1",
+              "scoring": "auto",
+              "introText": "A testable science question is one you can find the answer to by doing a test. 'Is blue a better color than red?' is an opinion, but 'Which ball bounces higher?' is a testable question.",
+              "responseOptions": ["Is science fun?", "Do plants need sunlight to grow?", "What is the best animal?", "Are rocks boring?"],
+              "correctAnswerIndex": 1
+            },
+            {
+              "id": "sc-inquiry-2-13",
+              "title": "What Did We Learn?",
+              "type": "virtual",
+              "prompt": "You test two toy cars. Car A went down a ramp in 3 seconds, and Car B took 5 seconds. What is the conclusion?",
+              "grade": "2",
+              "scoring": "auto",
+              "introText": "A conclusion is what you learn from your experiment. It's the answer to your question based on what you observed.",
+              "responseOptions": ["Both cars are the same speed.", "Car B is faster than Car A.", "Ramps are not fun.", "Car A is faster than Car B."],
+              "correctAnswerIndex": 3
             }
           ]
         },
