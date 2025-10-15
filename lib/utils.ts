@@ -7,8 +7,8 @@ let ai: GoogleGenAI | null = null;
 // FIX: Export the 'getAiClient' function so it can be used in other modules.
 export const getAiClient = () => {
     if (!ai) {
-        // FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+        // WARNING: Hardcoding the API key. This is not a recommended practice for production applications.
+        ai = new GoogleGenAI({ apiKey: 'AIzaSyClQm_SfT2UFLTdhMs0FU8YeKKTO-qtrWk' });
     }
     return ai;
 };

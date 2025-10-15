@@ -25,15 +25,13 @@ const initialModel: Model = {
 };
 
 function App() {
-  // FIX: Switched to process.env.API_KEY as per the SDK guidelines.
-  console.log("Gemini key loaded:", !!process.env.API_KEY);
   const [model, setModel] = usePersistentState<Model>(initialModel);
   const [view, setView] = useState<'assessment' | 'summary'>('assessment');
   const [kidMode, setKidMode] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<Grade | 'All'>('1');
 
   const handleResetApp = () => {
-    if (window.confirm("Are you sure you want to start over? All your progress will be erased.")) {
+    if (typeof window !== 'undefined' && window.confirm("Are you sure you want to start over? All your progress will be erased.")) {
         localStorage.removeItem(STORAGE_KEY);
         setModel(initialModel);
         setView('assessment');

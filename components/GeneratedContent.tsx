@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getAiClient } from '../lib/utils.ts';
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../types.ts';
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight, Droplets, Anchor, X } from 'lucide-react';
+import { extractJsonFromText, safeParseJson } from '../lib/aiJson.ts';
 
 interface GeneratedContentProps {
     activity: Activity;
@@ -306,190 +307,140 @@ const ActivityVisualRenderer: React.FC<{ visual: ActivityVisual }> = ({ visual }
 
 // --- END VISUAL COMPONENTS ---
 
-const getJsonInstruction = (displayType: Activity['displayType']) => {
+const buildPrompt = (
+    basePrompt: string,
+    displayType: Activity['displayType'],
+    gradeText: string,
+    isScaffolded: boolean,
+    isRetry: boolean = false
+): string => {
+    let schemaDescription = '';
     switch (displayType) {
         case 'story-time':
-            return `Format the output as a single, clean JSON object with two keys: "story" (a string of 4-5 sentences) and "questions" (an array of 3-4 objects). Each question object must have keys: "question" (string), "options" (an array of 4 strings), and "correctAnswerIndex" (an integer from 0-3). Do not include any other text or markdown formatting.`;
+            schemaDescription = `{ "story": "string (4-5 sentences)", "questions": [{ "question": "string", "options": ["string", "string", "string", "string"], "correctAnswerIndex": number }] } (3-4 questions)`;
+            break;
         case 'word-detective':
-            return `Format the output as a single, clean JSON object with three keys: "sightWords" (an array of 5 strings), "rhymes" (an array of 2-3 objects), and "syllables" (an array of 2-3 objects). Each "rhyme" object must have keys: "promptWord" (string), "options" (array of 4 strings), and "correctAnswerIndex" (integer). Each "syllable" object must have keys: "word" (string), "options" (array of 4 numbers), and "correctAnswerIndex" (integer). Do not include any other text or markdown formatting.`;
+            schemaDescription = `{ "sightWords": ["string", ...], "rhymes": [{ "promptWord": "string", "options": ["string", ...], "correctAnswerIndex": number }], "syllables": [{ "word": "string", "options": [number, ...], "correctAnswerIndex": number }] }`;
+            break;
         case 'sentence-builder':
-            return `Format the output as a single, clean JSON object with two keys: "sentenceCorrections" (an array of 2-3 objects) and "contractions" (an array of 2-3 objects). Each "sentenceCorrection" object needs "question", "options", "correctAnswerIndex". Each "contraction" object needs "uncontracted", "options", "correctAnswerIndex". Do not include any other text or markdown formatting.`;
+            schemaDescription = `{ "sentenceCorrections": [{ "question": "string", "options": [...], "correctAnswerIndex": number }], "contractions": [{ "uncontracted": "string", "options": [...], "correctAnswerIndex": number }] }`;
+            break;
         default:
             return '';
     }
-}
 
-/**
- * A robust function to find and parse a JSON object from a string.
- * It handles markdown code blocks and leading/trailing text.
- */
-const extractAndParseJson = (text: string) => {
-    // Attempt to find JSON within markdown-style code blocks
-    const markdownMatch = text.match(/```(json)?\s*([\s\S]*?)\s*```/);
-    if (markdownMatch && markdownMatch[2]) {
-        try {
-            return JSON.parse(markdownMatch[2]);
-        } catch (e) {
-            console.warn("Could not parse JSON from markdown block, attempting to find raw JSON.");
-        }
+    let prompt = `You are generating a single educational activity for a ${gradeText} student based on the following topic: "${basePrompt}".\n`;
+    if (isScaffolded) {
+        prompt += `Please make the content and questions particularly easy and clear, suitable for a child who may need extra support.\n`;
+    }
+    prompt += `Return your answer as a single JSON object ONLY, inside one code fence like \`\`\`json { ...valid JSON object... } \`\`\`.\n`;
+    prompt += `Never include extra prose or commentary outside the code fence.\n`;
+    prompt += `The required JSON schema is: ${schemaDescription}`;
+    
+    if (isRetry) {
+        prompt += "\n\nIMPORTANT: The previous attempt failed. Please ensure you ONLY return the code-fenced JSON object with no extra text.";
     }
 
-    // Fallback to finding the first and last curly or square bracket
-    const firstBracket = text.indexOf('[');
-    const firstBrace = text.indexOf('{');
-    
-    let startIndex = -1;
-    if (firstBracket === -1) {
-        startIndex = firstBrace;
-    } else if (firstBrace === -1) {
-        startIndex = firstBracket;
-    } else {
-        startIndex = Math.min(firstBracket, firstBrace);
-    }
-    
-    if (startIndex === -1) {
-        throw new Error("No JSON object or array found in the response.");
-    }
-    
-    const lastBracket = text.lastIndexOf(']');
-    const lastBrace = text.lastIndexOf('}');
-    
-    const endIndex = Math.max(lastBracket, lastBrace);
-
-    if (endIndex === -1) {
-         throw new Error("Could not find a valid JSON structure ending.");
-    }
-
-    const jsonString = text.substring(startIndex, endIndex + 1);
-    
-    try {
-        return JSON.parse(jsonString);
-    } catch (e) {
-        console.error("Final attempt to parse extracted JSON failed. Raw text:", text);
-        console.error("Extracted string:", jsonString);
-        throw new Error("Failed to parse the JSON response from the AI after cleaning.");
-    }
+    return prompt;
 };
-
 
 export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showRetry, setShowRetry] = useState(false);
     const generatedContent = activityState.generated;
 
-    useEffect(() => {
-        const generate = async () => {
-            if (generatedContent || !activity.isGrouped) return;
-
-            setLoading(true);
-            setError(null);
-
-            let prompt = activity.prompt;
-            
-            if (model.settings.scaffolds) {
-                prompt += ` Please make the content and questions particularly easy and clear, suitable for a child who may need extra support.`
-            }
-
-            const jsonInstruction = getJsonInstruction(activity.displayType);
-             if (!jsonInstruction) {
-                setLoading(false);
-                return;
-            }
-
-            // The switch statement has been removed and replaced with this single, more
-            // robust instruction. This ensures any AI-generated activity is correctly
-            // tailored to the child's grade level.
-            const gradeDisplayMap: Record<string, string> = {
-                'K': 'Kindergarten',
-                '1': '1st Grade',
-                '2': '2nd Grade'
-            };
-            const gradeText = gradeDisplayMap[activity.grade] || `Grade ${activity.grade}`;
-            prompt += ` All generated content must be appropriate for a ${gradeText} student.`;
-            
-            const finalPrompt = `${prompt}\n\n${jsonInstruction}`;
-
-            try {
-                // PRIMARY ATTEMPT: Use a more powerful model for better reliability.
-                const response = await getAiClient().models.generateContent({
-                    model: 'gemini-2.5-pro',
-                    contents: finalPrompt,
-                });
-
-                const candidate = response.candidates?.[0];
-                if (!candidate || (candidate.finishReason && candidate.finishReason !== 'STOP')) {
-                     const reason = candidate?.finishReason || response.promptFeedback?.blockReason || 'Unknown';
-                     throw new Error(`Primary generation failed. Reason: ${reason}`);
-                }
-                
-                const rawText = response.text;
-                if (!rawText) {
-                    throw new Error("Received an empty response from the primary API.");
-                }
-
-                const data = extractAndParseJson(rawText);
-
-                setModel(prev => ({
-                    ...prev,
-                    activity: {
-                        ...prev.activity,
-                        [activity.id]: { ...prev.activity[activity.id], id: activity.id, generated: data },
-                    },
-                }));
-
-            } catch (err) {
-                console.error("Primary content generation failed:", err);
-                
-                // FALLBACK ATTEMPT: If the primary fails, try a simpler request.
-                try {
-                    console.log("Attempting fallback generation with gemini-2.5-flash...");
-                    const fallbackPrompt = `Create one simple, grade-appropriate multiple choice question based on the following topic: "${activity.name}". The question should be suitable for a ${activity.grade} grader. Format the output as a single, clean JSON object with the keys "question", "options" (an array of 4 strings), and "correctAnswerIndex" (a number). Do not include any other text, formatting, or markdown.`;
-            
-                    const fallbackResponse = await getAiClient().models.generateContent({
-                        model: 'gemini-2.5-flash',
-                        contents: fallbackPrompt,
-                    });
-
-                    const fallbackRawText = fallbackResponse.text;
-                    if (!fallbackRawText) {
-                        throw new Error("Fallback API call returned an empty response.");
-                    }
-                    const fallbackMCQ = extractAndParseJson(fallbackRawText);
-                    
-                    let data;
-                    switch (activity.displayType) {
-                        case 'story-time':
-                            data = { story: "Let's try this fun question instead!", questions: [fallbackMCQ] };
-                            break;
-                        case 'word-detective':
-                            // Adapt to the expected structure, even if it's just one part
-                            data = { sightWords: [], rhymes: [{ ...fallbackMCQ, promptWord: "Rhyme for this question:" }], syllables: [] };
-                            break;
-                        case 'sentence-builder':
-                            data = { sentenceCorrections: [fallbackMCQ], contractions: [] };
-                            break;
-                        default:
-                            data = { story: "Here is your activity:", questions: [fallbackMCQ] };
-                    }
-                    
+    const generateContent = useCallback(async (isRetryAttempt: boolean = false) => {
+        const CACHE_KEY = `aiItem:${activity.id}`;
+        
+        // 1. Caching Layer
+        if (typeof window !== 'undefined' && !isRetryAttempt) {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                const parsed = safeParseJson<any>(cachedData);
+                if (parsed.ok) {
                     setModel(prev => ({
                         ...prev,
                         activity: {
                             ...prev.activity,
-                            [activity.id]: { ...prev.activity[activity.id], id: activity.id, generated: data },
+                            [activity.id]: { ...prev.activity[activity.id], id: activity.id, generated: parsed.data },
                         },
                     }));
-                } catch (fallbackErr) {
-                    console.error("Fallback content generation also failed:", fallbackErr);
-                    setError("Sorry, I couldn't create the activity. Please try resetting the activity.");
+                    return;
+                } else {
+                    localStorage.removeItem(CACHE_KEY); // Clear bad cache
                 }
-            } finally {
-                setLoading(false);
             }
-        };
+        }
 
-        generate();
-    }, [activity.id, generatedContent, activity.isGrouped, activity.displayType, activity.prompt, activity.grade, model.settings.scaffolds, setModel]);
+        setLoading(true);
+        setError(null);
+        setShowRetry(false);
+
+        const gradeDisplayMap: Record<string, string> = { 'K': 'Kindergarten', '1': '1st Grade', '2': '2nd Grade' };
+        const gradeText = gradeDisplayMap[activity.grade] || `Grade ${activity.grade}`;
+
+        try {
+            let text = '';
+            let jsonStr = '';
+            let parsed: { ok: boolean; data?: any; error?: string; } = { ok: false, error: 'Initial state' };
+
+            // Attempt 1
+            const prompt1 = buildPrompt(activity.prompt, activity.displayType, gradeText, model.settings.scaffolds, false);
+            if (prompt1) {
+                const response1 = await getAiClient().models.generateContent({
+                    model: 'gemini-2.5-pro',
+                    contents: prompt1,
+                    config: { temperature: 0.2, topP: 0.9, maxOutputTokens: 2048 }
+                });
+                text = response1.text;
+                jsonStr = extractJsonFromText(text);
+                parsed = safeParseJson(jsonStr);
+            }
+
+            // Attempt 2 (Retry)
+            if (!parsed.ok && prompt1) {
+                console.log("Initial parse failed, retrying...");
+                const prompt2 = buildPrompt(activity.prompt, activity.displayType, gradeText, model.settings.scaffolds, true);
+                const response2 = await getAiClient().models.generateContent({
+                    model: 'gemini-2.5-pro',
+                    contents: prompt2,
+                    config: { temperature: 0.2, topP: 0.9, maxOutputTokens: 2048 }
+                });
+                text = response2.text;
+                jsonStr = extractJsonFromText(text);
+                parsed = safeParseJson(jsonStr);
+            }
+            
+            console.warn("AI_GEN", { id: activity.id, len: text?.length, extracted: !!jsonStr, parseOk: parsed.ok, error: !parsed.ok ? parsed.error : "null" });
+
+            if (parsed.ok) {
+                 if (typeof window !== 'undefined') {
+                    localStorage.setItem(CACHE_KEY, jsonStr);
+                }
+                setModel(prev => ({
+                    ...prev,
+                    activity: {
+                        ...prev.activity,
+                        [activity.id]: { ...prev.activity[activity.id], id: activity.id, generated: parsed.data },
+                    },
+                }));
+            } else {
+                setShowRetry(true);
+            }
+        } catch (err) {
+            console.error("Content generation API call failed:", err);
+            setShowRetry(true);
+        } finally {
+            setLoading(false);
+        }
+    }, [activity.id, activity.displayType, activity.prompt, activity.grade, model.settings.scaffolds, setModel]);
+
+    useEffect(() => {
+        if (!generatedContent && activity.isGrouped) {
+            generateContent();
+        }
+    }, [activity.id, generatedContent, activity.isGrouped, generateContent]);
 
     const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
         if (isReadOnly) return;
@@ -518,6 +469,16 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                 <Loader className="w-12 h-12 text-slate-500 mx-auto animate-spin"/>
                 <h3 className="mt-2 text-lg font-bold text-slate-700">Sophia the Owl is thinking...</h3>
                 <p className="text-sm text-slate-600">Creating a fun new activity just for you!</p>
+            </div>
+        );
+    }
+    
+    if (showRetry) {
+        return (
+            <div className="p-6 text-center bg-amber-50 rounded-lg border-2 border-dashed border-amber-300 flex flex-col items-center gap-2">
+                <h3 className="mt-2 text-lg font-bold text-amber-800">We’re setting this up…</h3>
+                <p className="text-sm text-amber-700">The AI reply wasn’t usable. Tap Retry to try again.</p>
+                <Button onClick={() => generateContent(true)} className="mt-2">Retry</Button>
             </div>
         );
     }

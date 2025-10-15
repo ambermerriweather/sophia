@@ -12,21 +12,23 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  // FIX: Re-introduced the constructor to explicitly initialize state.
-  // The class property syntax was causing a TypeScript error where `this.props` was not being recognized.
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-    };
-  }
+  // FIX: Replaced the constructor with a class property for state initialization.
+  // This resolves errors where `this.state` and `this.props` were not being recognized on the component instance.
+  public state: State = {
+    hasError: false,
+    error: undefined,
+  };
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error("ERRORBOUNDARY:", { 
+      message: String(error?.message || error), 
+      stack: error?.stack,
+      componentStack: errorInfo.componentStack
+    });
   }
 
   private handleReset = () => {
