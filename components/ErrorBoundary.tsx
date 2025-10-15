@@ -12,12 +12,14 @@ interface State {
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  // FIX: Replaced the constructor with a state class property initializer.
-  // This is a more modern and concise way to define state in a React class component
-  // and resolves the compilation errors related to `this.state` and `this.props`.
-  public state: State = {
-    hasError: false,
-  };
+  // FIX: Re-introduced the constructor to explicitly initialize state.
+  // The class property syntax was causing a TypeScript error where `this.props` was not being recognized.
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };

@@ -396,17 +396,16 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                 return;
             }
 
-            switch (activity.displayType) {
-                case 'story-time':
-                    prompt += ` The story should be at a ${activity.grade} grade reading level.`
-                    break;
-                case 'word-detective':
-                    prompt += ` The words should be appropriate for a ${activity.grade} grader.`
-                    break;
-                case 'sentence-builder':
-                    prompt += ` The sentences and contractions should be appropriate for a ${activity.grade} grader.`
-                    break;
-            }
+            // The switch statement has been removed and replaced with this single, more
+            // robust instruction. This ensures any AI-generated activity is correctly
+            // tailored to the child's grade level.
+            const gradeDisplayMap: Record<string, string> = {
+                'K': 'Kindergarten',
+                '1': '1st Grade',
+                '2': '2nd Grade'
+            };
+            const gradeText = gradeDisplayMap[activity.grade] || `Grade ${activity.grade}`;
+            prompt += ` All generated content must be appropriate for a ${gradeText} student.`;
             
             const finalPrompt = `${prompt}\n\n${jsonInstruction}`;
 
