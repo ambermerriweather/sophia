@@ -5,6 +5,7 @@ import { Header } from './components/Header.tsx';
 import { DomainTabs } from './components/DomainTabs.tsx';
 import { Summary } from './components/Summary.tsx';
 import { DOMAINS } from './constants.ts';
+import { STORAGE_KEY } from './constants.ts';
 
 const initialModel: Model = {
   learner: {
@@ -31,6 +32,15 @@ function App() {
   const [kidMode, setKidMode] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState<Grade | 'All'>('1');
 
+  const handleResetApp = () => {
+    if (window.confirm("Are you sure you want to start over? All your progress will be erased.")) {
+        localStorage.removeItem(STORAGE_KEY);
+        setModel(initialModel);
+        setView('assessment');
+        setSelectedGrade('1');
+    }
+  };
+
   React.useEffect(() => {
     setKidMode(model.settings.kidMode);
   }, [model.settings.kidMode]);
@@ -53,6 +63,7 @@ function App() {
           setModel={setModel} 
           selectedGrade={selectedGrade}
           setSelectedGrade={setSelectedGrade}
+          onResetApp={handleResetApp}
         />
         
         <main>

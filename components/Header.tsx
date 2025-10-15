@@ -5,15 +5,18 @@ import { Progress } from './ui/Progress.tsx';
 import { Label } from './ui/Label.tsx';
 import { Switch } from './ui/Switch.tsx';
 import { Input } from './ui/Input.tsx';
+import { Button } from './ui/Button.tsx';
 import { GradeSelector } from './GradeSelector.tsx';
 import { DOMAINS } from '../constants.ts'; // Import for overall progress calculation
 import { Mascot } from './Mascot.tsx';
+import { RefreshCw } from 'lucide-react';
 
 interface HeaderProps {
   model: Model;
   setModel: React.Dispatch<React.SetStateAction<Model>>;
   selectedGrade: Grade | 'All';
   setSelectedGrade: (grade: Grade | 'All') => void;
+  onResetApp: () => void;
 }
 
 const gradeDisplayMap = {
@@ -23,7 +26,7 @@ const gradeDisplayMap = {
     'All': 'K-2 Full'
 }
 
-export const Header: React.FC<HeaderProps> = ({ model, setModel, selectedGrade, setSelectedGrade }) => {
+export const Header: React.FC<HeaderProps> = ({ model, setModel, selectedGrade, setSelectedGrade, onResetApp }) => {
   // Always calculate overall progress against the full set of domains.
   const completion = percentComplete(model, DOMAINS); 
 
@@ -53,7 +56,18 @@ export const Header: React.FC<HeaderProps> = ({ model, setModel, selectedGrade, 
         </div>
       </div>
 
-      <div className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-rose-200/80 space-y-4">
+      <div className="relative p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-rose-200/80 space-y-4">
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-2 right-2 text-slate-500 hover:bg-rose-100 hover:text-rose-700" 
+            onClick={onResetApp}
+            aria-label="Reset application progress"
+            title="Start Over"
+        >
+            <RefreshCw className="w-5 h-5" />
+        </Button>
+
         <GradeSelector selectedGrade={selectedGrade} setSelectedGrade={setSelectedGrade} />
         <p className="text-center text-sm text-slate-600 max-w-3xl mx-auto">
             This tool lets us check in on skills any time across the first three years of her education. Let's start with <strong>1st Grade</strong> to get a baseline. We can bridge up or down depending on how she does, but we should never test all three grades on the same day—that would be overwhelming!

@@ -446,8 +446,16 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                         responseSchema: schema,
                     },
                 });
+
+                if (response.promptFeedback?.blockReason) {
+                    throw new Error(`Content generation was blocked. Reason: ${response.promptFeedback.blockReason}`);
+                }
                 
                 const rawText = response.text;
+                if (!rawText) {
+                    throw new Error("Received an empty response from the API.");
+                }
+
                 let jsonStr;
 
                 // Attempt to extract JSON from a markdown code block
@@ -505,7 +513,15 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
 
             } catch (err) {
                 console.error("Error generating content:", err);
-                setError("Sorry, I couldn't create the activity. Please try resetting the activity.");
+                let errorMessage = "Sorry, I couldn't create the activity. Please try resetting the activity.";
+                if (err instanceof Error) {
+                    if (err.message.includes("blocked")) {
+                        errorMessage = "The AI couldn't create this activity due to safety filters. Please try resetting or choose another activity.";
+                    } else if (err.message.toLowerCase().includes("json")) {
+                        errorMessage = "There was a problem understanding the AI's response. Please try resetting.";
+                    }
+                }
+                setError(errorMessage);
             } finally {
                 setLoading(false);
             }
