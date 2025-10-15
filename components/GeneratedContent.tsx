@@ -400,6 +400,59 @@ const sentenceBuilderSchema = {
     required: ['sentenceCorrections', 'contractions']
 };
 
+/**
+ * A robust function to find and parse a JSON object from a string.
+ * It handles markdown code blocks and leading/trailing text.
+ */
+const extractAndParseJson = (text: string) => {
+    // Attempt to find JSON within markdown-style code blocks
+    const markdownMatch = text.match(/```(json)?\s*([\s\S]*?)\s*```/);
+    if (markdownMatch && markdownMatch[2]) {
+        try {
+            return JSON.parse(markdownMatch[2]);
+        } catch (e) {
+            console.warn("Could not parse JSON from markdown block, attempting to find raw JSON.");
+        }
+    }
+
+    // Fallback to finding the first and last curly or square bracket
+    const firstBracket = text.indexOf('[');
+    const firstBrace = text.indexOf('{');
+    
+    let startIndex = -1;
+    if (firstBracket === -1) {
+        startIndex = firstBrace;
+    } else if (firstBrace === -1) {
+        startIndex = firstBracket;
+    } else {
+        startIndex = Math.min(firstBracket, firstBrace);
+    }
+    
+    if (startIndex === -1) {
+        throw new Error("No JSON object or array found in the response.");
+    }
+    
+    const lastBracket = text.lastIndexOf(']');
+    const lastBrace = text.lastIndexOf('}');
+    
+    const endIndex = Math.max(lastBracket, lastBrace);
+
+    if (endIndex === -1) {
+         throw new Error("Could not find a valid JSON structure ending.");
+    }
+
+    const jsonString = text.substring(startIndex, endIndex + 1);
+    
+    try {
+        return JSON.parse(jsonString);
+    } catch (e) {
+        console.error("Final attempt to parse extracted JSON failed. Raw text:", text);
+        console.error("Extracted string:", jsonString);
+        throw new Error("Failed to parse the JSON response from the AI after cleaning.");
+    }
+};
+
+
 export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, model, setModel, activityState, isReadOnly }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -447,8 +500,13 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                     },
                 });
 
-                if (response.promptFeedback?.blockReason) {
-                    throw new Error(`Content generation was blocked. Reason: ${response.promptFeedback.blockReason}`);
+                const candidate = response.candidates?.[0];
+                if (!candidate || (candidate.finishReason && candidate.finishReason !== 'STOP')) {
+                     const reason = candidate?.finishReason || response.promptFeedback?.blockReason || 'Unknown';
+                     if (reason === 'SAFETY') {
+                        throw new Error(`Content generation was blocked due to safety filters. Reason: ${reason}`);
+                     }
+                     throw new Error(`Content generation failed before completion. Reason: ${reason}`);
                 }
                 
                 const rawText = response.text;
@@ -456,52 +514,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                     throw new Error("Received an empty response from the API.");
                 }
 
-                let jsonStr;
-
-                // Attempt to extract JSON from a markdown code block
-                const markdownMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-                if (markdownMatch && markdownMatch[1]) {
-                    jsonStr = markdownMatch[1];
-                } else {
-                    // If no markdown, find the first '{' or '[' to start parsing
-                    const firstBracket = rawText.indexOf('{');
-                    const firstSquare = rawText.indexOf('[');
-                    
-                    if (firstBracket === -1 && firstSquare === -1) {
-                         throw new Error("No JSON object or array found in the response.");
-                    }
-                    
-                    // Determine which bracket comes first
-                    let start = -1;
-                    if (firstBracket !== -1 && firstSquare !== -1) {
-                        start = Math.min(firstBracket, firstSquare);
-                    } else if (firstBracket !== -1) {
-                        start = firstBracket;
-                    } else {
-                        start = firstSquare;
-                    }
-                    
-                    // Find the corresponding closing bracket to be more robust
-                    const lastBracket = rawText.lastIndexOf('}');
-                    const lastSquare = rawText.lastIndexOf(']');
-
-                    let end = -1;
-                     if (lastBracket !== -1 && lastSquare !== -1) {
-                        end = Math.max(lastBracket, lastSquare);
-                    } else if (lastBracket !== -1) {
-                        end = lastBracket;
-                    } else {
-                        end = lastSquare;
-                    }
-
-                    if (start === -1 || end === -1) {
-                        throw new Error("Could not find complete JSON object or array in response.");
-                    }
-                    
-                    jsonStr = rawText.substring(start, end + 1);
-                }
-
-                const data = JSON.parse(jsonStr);
+                const data = extractAndParseJson(rawText);
 
                 setModel(prev => ({
                     ...prev,
@@ -515,9 +528,9 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                 console.error("Error generating content:", err);
                 let errorMessage = "Sorry, I couldn't create the activity. Please try resetting the activity.";
                 if (err instanceof Error) {
-                    if (err.message.includes("blocked")) {
+                    if (err.message.includes("SAFETY") || err.message.includes("blocked")) {
                         errorMessage = "The AI couldn't create this activity due to safety filters. Please try resetting or choose another activity.";
-                    } else if (err.message.toLowerCase().includes("json")) {
+                    } else if (err.message.toLowerCase().includes("json") || err.message.toLowerCase().includes("parse")) {
                         errorMessage = "There was a problem understanding the AI's response. Please try resetting.";
                     }
                 }

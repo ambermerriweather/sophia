@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Activity, Model, ActivityState } from '../types.ts';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/Card.tsx';
@@ -19,6 +20,24 @@ interface ActivityCardProps {
 const stickerEmojis = ['🌟', '🚀', '🦄', '🍎', '💡', '🏆', '🌈', '✅', '👍', '🧠'];
 
 type ActivityStatus = 'idle' | 'running' | 'completed';
+
+// NEW: Simple confetti component for celebration effect
+const Confetti: React.FC = () => {
+    const colors = ['#f472b6', '#facc15', '#4ade80', '#60a5fa', '#a78bfa'];
+    const confettiPieces = Array.from({ length: 30 }).map((_, i) => {
+        const style = {
+            left: `${Math.random() * 100}%`,
+            backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+            animationDelay: `${Math.random() * 2}s`,
+            animationDuration: `${Math.random() * 3 + 2}s`,
+            transform: `rotate(${Math.random() * 360}deg)`,
+        };
+        return <div key={i} className="absolute top-[-10px] w-2 h-3 rounded-sm animate-fall" style={style}></div>;
+    });
+
+    return <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">{confettiPieces}</div>;
+}
+
 
 const TimedTask: React.FC<{ seconds: number }> = ({ seconds }) => {
   const [remaining, setRemaining] = useState(seconds);
@@ -145,23 +164,50 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
 
     // For single (non-grouped) virtual activities
     if (!activity.isGrouped) {
-      return state.answers && state.answers[activity.id] !== undefined;
+      if (activity.responseOptions) { // It's a single MCQ
+        return state.answers && state.answers[activity.id] !== undefined;
+      }
+      return true; // Non-MCQ virtual activities can be completed anytime
     }
 
-    // For grouped virtual activities
-    if (!activity.subItems || !state.answers) {
-      return false;
+    // For ALL grouped activities, we need answers to proceed.
+    if (!state.answers) {
+        return false;
     }
-    
     const answeredCount = Object.keys(state.answers).length;
-    const totalQuestions = activity.subItems.length;
-
+    
     // For SinkOrSwim, allow completion after just one prediction.
     if (activity.displayType === 'sink-or-swim-mission') {
       return answeredCount > 0;
     }
 
-    return answeredCount === totalQuestions;
+    // For AI generated activities
+    if (state.generated) {
+        let totalQuestions = 0;
+        const genState = state.generated as any;
+        switch (activity.displayType) {
+            case 'story-time':
+                totalQuestions = genState.questions?.length || 0;
+                break;
+            case 'word-detective':
+                totalQuestions = (genState.rhymes?.length || 0) + (genState.syllables?.length || 0);
+                break;
+            case 'sentence-builder':
+                totalQuestions = (genState.sentenceCorrections?.length || 0) + (genState.contractions?.length || 0);
+                break;
+            default:
+                return false; // Should not happen for AI content
+        }
+        return answeredCount === totalQuestions;
+    }
+
+    // For static grouped virtual activities
+    if (activity.subItems) {
+      return answeredCount === activity.subItems.length;
+    }
+    
+    // Fallback for unexpected cases
+    return false;
   };
 
   
@@ -181,7 +227,32 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
 
   return (
     <>
-      <Card className={`flex flex-col transition-all duration-300 ${status === 'completed' ? 'bg-emerald-50 border-emerald-200' : 'bg-white'}`}>
+       {/* NEW: Added CSS for animations */}
+      <style>{`
+        @keyframes pulse-celebrate {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.01); }
+        }
+        .animate-pulse-celebrate {
+          animation: pulse-celebrate 2.5s infinite ease-in-out;
+        }
+        @keyframes fall {
+          0% {
+            transform: translateY(-20px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(120px) rotate(720deg);
+            opacity: 0;
+          }
+        }
+        .animate-fall {
+          animation-name: fall;
+          animation-timing-function: linear;
+          animation-fill-mode: forwards;
+        }
+      `}</style>
+      <Card className={`flex flex-col transition-all duration-300 ${status === 'completed' ? 'bg-emerald-50 border-emerald-200 animate-pulse-celebrate' : 'bg-white'}`}>
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className={isKidMode ? 'text-3xl' : 'text-xl'}>{activity.name}</CardTitle>
@@ -246,12 +317,13 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
           )}
           
            {status === 'completed' && (
-            <div className="p-6 text-center bg-emerald-100/70 rounded-lg border-2 border-dashed border-emerald-300 flex flex-col items-center gap-2">
-                <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto"/>
-                <Mascot className="w-20 h-20" />
-                <h3 className="mt-2 text-xl font-bold text-emerald-800">Activity Complete!</h3>
-                <p className="text-sm text-emerald-700">Great job, Sophia!</p>
-                 {state.sticker && <p className="text-5xl mt-2">{state.sticker}</p>}
+            <div className="relative p-6 text-center bg-emerald-100/70 rounded-lg border-2 border-dashed border-emerald-300 flex flex-col items-center gap-2 overflow-hidden">
+                <Confetti />
+                <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto relative z-20"/>
+                <Mascot className="w-20 h-20 relative z-20" />
+                <h3 className="mt-2 text-xl font-bold text-emerald-800 relative z-20">Activity Complete!</h3>
+                <p className="text-sm text-emerald-700 relative z-20">Great job, Sophia!</p>
+                 {state.sticker && <p className="text-5xl mt-2 relative z-20">{state.sticker}</p>}
             </div>
            )}
         </CardContent>
