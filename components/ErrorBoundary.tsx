@@ -1,58 +1,63 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from './ui/Button.tsx';
-import { Mascot } from './Mascot.tsx';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
+import { Mascot } from './Mascot';
+import { Button } from './ui/Button';
 
-interface Props {
+interface ErrorBoundaryProps {
   children: ReactNode;
 }
 
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  // FIX: Initialized state using a public class field instead of a constructor.
-  // This is a more modern and concise syntax that correctly defines the `state`
-  // property on the component instance, resolving the TypeScript errors about
-  // `state` and `props` not existing.
-  public state: State = {
-    hasError: false,
-    error: undefined,
-  };
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  // FIX: Rewrote state initialization to use a constructor for broader compatibility, which can resolve obscure type errors regarding `this.props`.
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+    };
+  }
 
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ERRORBOUNDARY:", { 
-      message: String(error?.message || error), 
-      stack: error?.stack,
-      componentStack: errorInfo.componentStack
-    });
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // You can log the error to an error reporting service here
+    console.error("Uncaught error:", error, errorInfo);
   }
 
-  private handleReset = () => {
-    window.location.reload();
-  }
-
-  public render() {
+  render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-rose-50 p-4 text-center">
-            <Mascot className="w-32 h-32" />
-            <h1 className="mt-4 text-3xl font-bold text-slate-800">Oops! Something went wrong.</h1>
-            <p className="mt-2 text-slate-600">Sophia the Owl is on it! Please try refreshing the page to continue.</p>
-            <Button onClick={this.handleReset} className="mt-6">
-                Refresh Page
-            </Button>
-            <details className="mt-4 text-left bg-white p-4 rounded-lg border w-full max-w-2xl">
-                <summary className="cursor-pointer font-semibold text-sm text-slate-500">Error Details</summary>
-                <pre className="mt-2 text-xs text-red-600 whitespace-pre-wrap break-all">
-                    {this.state.error?.toString()}
-                </pre>
-            </details>
+        <div className="flex items-center justify-center min-h-screen bg-rose-50 p-4">
+            <Card className="max-w-lg w-full text-center shadow-2xl border-red-300">
+                <CardHeader>
+                    <Mascot className="w-24 h-24 mx-auto" />
+                    <CardTitle className="text-2xl text-red-800 mt-4">Oops! Something Went Wrong</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-slate-700">
+                    An unexpected error occurred. Please try refreshing the page.
+                    </p>
+                    <Button onClick={() => window.location.reload()}>
+                    Refresh Page
+                    </Button>
+                    {this.state.error && (
+                        <details className="p-2 bg-slate-100 rounded-lg text-left text-xs mt-4">
+                        <summary className="cursor-pointer font-semibold">Error Details</summary>
+                        <pre className="mt-2 whitespace-pre-wrap break-all">
+                            {this.state.error.toString()}
+                            <br />
+                            {this.state.error.stack}
+                        </pre>
+                        </details>
+                    )}
+                </CardContent>
+            </Card>
         </div>
       );
     }

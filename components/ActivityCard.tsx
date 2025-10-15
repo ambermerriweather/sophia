@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Activity, Model, ActivityState } from '../types.ts';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/Card.tsx';
@@ -6,7 +7,7 @@ import { Button } from './ui/Button.tsx';
 import { Textarea } from './ui/Textarea.tsx';
 import { Label } from './ui/Label.tsx';
 import { Badge } from './ui/Badge.tsx';
-import { CheckCircle, Clock, Play, Star, Info, Timer } from 'lucide-react';
+import { CheckCircle, Clock, Play, Star, Info, Timer, Lightbulb } from 'lucide-react';
 import { BrainBreakModal } from './BrainBreakModal.tsx';
 import { GeneratedContent } from './GeneratedContent.tsx';
 import { Mascot } from './Mascot.tsx';
@@ -270,12 +271,25 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, model, set
                 </div>
              </div>
           </div>
+          
+          {/* "Teach First" block to display introductory content */}
+          {activity.introText && (
+            <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <div className="flex items-start gap-3">
+                    <Lightbulb className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0"/>
+                    <div>
+                        <h4 className="font-semibold text-blue-800">Let's Learn First!</h4>
+                        <p className={`text-blue-700 ${isKidMode ? 'text-xl' : ''}`}>{activity.introText}</p>
+                    </div>
+                </div>
+            </div>
+          )}
 
           {activity.sentenceStems && (
             <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                 <h4 className="font-semibold text-blue-800">Sentence Starters</h4>
                 <ul className="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
-                    {activity.sentenceStems.map(stem => <li key={stem}>"{stem}..."</li>)}
+                    {activity.sentenceStems && activity.sentenceStems.map(stem => <li key={stem}>"{stem}..."</li>)}
                 </ul>
             </div>
           )}

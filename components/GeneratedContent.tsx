@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getAiClient } from '../lib/utils.ts';
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../types.ts';
 import { Button } from './ui/Button.tsx';
@@ -352,6 +352,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
     const [error, setError] = useState<string | null>(null);
     const [showRetry, setShowRetry] = useState(false);
     const generatedContent = activityState.generated;
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
     const generateContent = useCallback(async (isRetryAttempt: boolean = false) => {
         const CACHE_KEY = `aiItem:${activity.id}`;
@@ -440,13 +441,15 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
     }, [activity.id, activity.displayType, activity.prompt, activity.grade, model.settings.scaffolds, setModel]);
 
     useEffect(() => {
-        // FIX: Only trigger AI content generation for designated activity types.
-        // This prevents unnecessary and failing API calls for static grouped content
-        // like 'number-ninja', 'science-explorer', etc.
         if (!generatedContent && activity.isGrouped && AI_GENERATED_TYPES.has(activity.displayType!)) {
             generateContent();
         }
     }, [activity.id, activity.displayType, generatedContent, activity.isGrouped, generateContent]);
+    
+    // Reset index if activity changes
+     useEffect(() => {
+        setCurrentQuestionIndex(0);
+    }, [activity.id]);
 
     const handleAnswer = (questionId: string, answerIndex: number, correctIndex: number) => {
         if (isReadOnly) return;
@@ -493,7 +496,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
         return <div className="p-4 text-center bg-red-100 text-red-700 rounded-lg">{error}</div>;
     }
 
-    if (activity.visual) {
+    if (activity.visual && !activity.isGrouped) {
       return <ActivityVisualRenderer visual={activity.visual} />;
     }
     
@@ -501,8 +504,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
         return null;
     }
     
-    const renderMCQ = (q: any, index: number, prefix: string) => {
-        const questionId = `${prefix}-${index}`;
+    const renderMCQ = (q: any, questionId: string, index: number) => {
         const userAnswer = activityState.answers?.[questionId];
         const questionText = q.question || q.promptWord || q.word || q.uncontracted || q.prompt;
         
@@ -510,7 +512,7 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             <div key={questionId} className="p-4 border rounded-lg bg-white/50">
                 <p className="font-semibold">{index + 1}. {questionText}{q.uncontracted ? "?" : ""}</p>
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {q.options.map((option: string, i: number) => {
+                    {(q.options || q.responseOptions || []).map((option: string, i: number) => {
                          const isSelected = userAnswer?.answerIndex === i;
                          const isCorrect = q.correctAnswerIndex === i;
                          
@@ -594,65 +596,114 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             question: activity.prompt,
             options: activity.responseOptions || [],
             correctAnswerIndex: activity.correctAnswerIndex,
-        }, 0, activity.id);
+        }, activity.id, 0);
     }
     
-    switch (activity.displayType) {
-        case 'story-time':
-            const storyData = generatedContent as GroupedMCQGeneratedState;
-            return storyData ? (
-                <div className="space-y-4">
+    // This is the new one-at-a-time renderer for all grouped activities
+    const renderPagedContent = (allQuestions: any[], totalQuestions: number, storyText?: string) => {
+        const currentQuestion = allQuestions[currentQuestionIndex];
+        if (!currentQuestion) {
+             return <div className="p-4 text-center font-semibold">All questions answered! You can now mark the activity as complete.</div>;
+        }
+        const questionId = currentQuestion.id || `${activity.displayType}-${currentQuestionIndex}`;
+        const userAnswer = activityState.answers?.[questionId];
+
+        return (
+            <div className="space-y-4">
+                 {storyText && (
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <h4 className="font-bold text-yellow-800">Story Time!</h4>
-                        <p className="mt-2 whitespace-pre-wrap">{storyData.story}</p>
+                        <p className="mt-2 whitespace-pre-wrap">{storyText}</p>
                     </div>
-                    {storyData.questions.map((q, i) => renderMCQ(q, i, 'story'))}
+                )}
+                {currentQuestion.visual && <ActivityVisualRenderer visual={currentQuestion.visual} />}
+                {renderMCQ(currentQuestion, questionId, currentQuestionIndex)}
+                <div className="flex justify-between items-center pt-2">
+                    <p className="text-sm font-semibold text-slate-500">
+                        Question {currentQuestionIndex + 1} of {totalQuestions}
+                    </p>
+                    {userAnswer !== undefined && currentQuestionIndex < totalQuestions - 1 && (
+                        <Button onClick={() => setCurrentQuestionIndex(prev => prev + 1)}>
+                            Next Question <ArrowRight className="w-4 h-4 ml-2"/>
+                        </Button>
+                    )}
                 </div>
-            ) : null;
-        case 'word-detective':
+            </div>
+        );
+    };
+
+    switch (activity.displayType) {
+        case 'story-time': {
+            const storyData = generatedContent as GroupedMCQGeneratedState;
+            if (!storyData) return null;
+            return renderPagedContent(storyData.questions, storyData.questions.length, storyData.story);
+        }
+        case 'word-detective': {
              const wordData = generatedContent as WordDetectiveGeneratedState;
-             return wordData ? (
-                <div className="space-y-6">
-                    {wordData.sightWords && wordData.sightWords.length > 0 && (
-                        <div>
-                            <h4 className="font-semibold text-lg mb-2">Sight Words Practice</h4>
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap justify-center gap-4">
-                            {wordData.sightWords.map(word => <div key={word} className="px-4 py-2 bg-white rounded-md shadow-sm font-bold text-xl">{word}</div>)}
-                            </div>
-                        </div>
-                    )}
-                    {wordData.rhymes && wordData.rhymes.length > 0 && (
-                        <div className="space-y-4">
-                            <h4 className="font-semibold text-lg">Rhyming Riddles</h4>
-                            {wordData.rhymes.map((q, i) => renderMCQ(q, i, 'rhyme'))}
-                        </div>
-                    )}
-                    {wordData.syllables && wordData.syllables.length > 0 && (
-                        <div className="space-y-4">
-                            <h4 className="font-semibold text-lg">Syllable Count</h4>
-                            {wordData.syllables.map((q, i) => renderMCQ(q, i, 'syllable'))}
-                        </div>
-                    )}
-                </div>
-             ) : null;
-        case 'sentence-builder':
+             if (!wordData) return null;
+             const allQuestions = [
+                ...(wordData.rhymes || []),
+                ...(wordData.syllables || [])
+             ];
+             // Render sight words separately at the start
+             if (currentQuestionIndex === 0 && wordData.sightWords && wordData.sightWords.length > 0) {
+                 const isAnswered = activityState.answers?.[`${activity.id}-sightwords`];
+                 return (
+                     <div className="space-y-4">
+                         <h4 className="font-semibold text-lg mb-2">Sight Words Practice</h4>
+                         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap justify-center gap-4">
+                             {wordData.sightWords.map(word => <div key={word} className="px-4 py-2 bg-white rounded-md shadow-sm font-bold text-xl">{word}</div>)}
+                         </div>
+                         <div className="text-center">
+                              <Button onClick={() => {
+                                  handleAnswer(`${activity.id}-sightwords`, 0, 0); // Log "completion" of this step
+                                  setCurrentQuestionIndex(prev => prev + 1);
+                              }}>
+                                 Start Questions <ArrowRight className="w-4 h-4 ml-2"/>
+                              </Button>
+                         </div>
+                     </div>
+                 )
+             }
+             // Adjust question list and index if sight words were present
+             const questionList = allQuestions;
+             const questionIndex = (wordData.sightWords?.length > 0) ? currentQuestionIndex - 1 : currentQuestionIndex;
+
+             // Handle case where we're past sight words but there are no other questions
+             if (questionIndex >= questionList.length || questionIndex < 0) {
+                 return <div className="p-4 text-center font-semibold">All questions answered! You can now mark the activity as complete.</div>;
+             }
+             
+             const currentQuestion = questionList[questionIndex];
+             // FIX: Use type assertion to access properties from the union type 'WordDetectiveRhyme | WordDetectiveSyllable'.
+             const questionId = (currentQuestion as any).word || (currentQuestion as any).promptWord;
+             const userAnswer = activityState.answers?.[questionId];
+             
+             return (
+                 <div className="space-y-4">
+                     {renderMCQ(currentQuestion, questionId, questionIndex)}
+                     <div className="flex justify-between items-center pt-2">
+                        <p className="text-sm font-semibold text-slate-500">
+                            Question {questionIndex + 1} of {questionList.length}
+                        </p>
+                        {userAnswer !== undefined && currentQuestionIndex < (wordData.sightWords ? questionList.length : questionList.length -1) && (
+                           <Button onClick={() => setCurrentQuestionIndex(prev => prev + 1)}>
+                                Next Question <ArrowRight className="w-4 h-4 ml-2"/>
+                           </Button>
+                        )}
+                     </div>
+                 </div>
+             );
+        }
+        case 'sentence-builder': {
             const sentenceData = generatedContent as SentenceBuilderGeneratedState;
-            return sentenceData ? (
-                <div className="space-y-6">
-                    {sentenceData.sentenceCorrections && sentenceData.sentenceCorrections.length > 0 && (
-                        <div className="space-y-4">
-                            <h4 className="font-semibold text-lg">Fix the Sentence</h4>
-                            {sentenceData.sentenceCorrections.map((q, i) => renderMCQ(q, i, 'correction'))}
-                        </div>
-                    )}
-                    {sentenceData.contractions && sentenceData.contractions.length > 0 && (
-                        <div className="space-y-4">
-                            <h4 className="font-semibold text-lg">Find the Contraction</h4>
-                            {sentenceData.contractions.map((q, i) => renderMCQ(q, i, 'contraction'))}
-                        </div>
-                    )}
-                </div>
-            ) : null;
+            if (!sentenceData) return null;
+            const allQuestions = [
+                ...(sentenceData.sentenceCorrections || []),
+                ...(sentenceData.contractions || [])
+            ];
+            return renderPagedContent(allQuestions, allQuestions.length);
+        }
         case 'sink-or-swim-mission':
              return activity.subItems ? renderSinkOrSwim(activity.subItems) : null;
         case 'number-ninja':
@@ -664,22 +715,10 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
         case 'leaders-and-citizens':
         case 'emotions-and-collaboration':
         case 'planning-and-organization':
-        case 'working-memory-game':
-             return (
-                 <div className="space-y-4">
-                    {activity.introText && (
-                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                           <p className="text-purple-800">{activity.introText}</p>
-                        </div>
-                    )}
-                    {activity.subItems?.map((q, i) => renderMCQ({
-                        prompt: q.prompt,
-                        options: q.responseOptions,
-                        correctAnswerIndex: q.correctAnswerIndex
-                    }, i, q.id))}
-                 </div>
-             )
-
+        case 'working-memory-game': {
+             const allQuestions = activity.subItems || [];
+             return renderPagedContent(allQuestions, allQuestions.length);
+        }
         default:
             return null;
     }

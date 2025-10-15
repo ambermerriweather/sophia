@@ -7,7 +7,7 @@ interface ApiKeyCheckerProps {
 }
 
 const ApiKeyChecker: React.FC<ApiKeyCheckerProps> = ({ children }) => {
-  // FIX: Use `process.env.API_KEY` to align with the coding guidelines and resolve the TypeScript error with `import.meta.env`.
+  // FIX: Adhere to guidelines by using process.env.API_KEY.
   const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
@@ -31,7 +31,7 @@ const ApiKeyChecker: React.FC<ApiKeyCheckerProps> = ({ children }) => {
                 Please add the following variable:
               </p>
               <pre className="mt-1 p-2 bg-slate-200 text-slate-900 rounded-md text-xs">
-                {/* FIX: Updated variable name to API_KEY to match usage. */}
+                {/* FIX: Updated variable name to match the guidelines. */}
                 <code>API_KEY="your_actual_gemini_api_key"</code>
               </pre>
                <p className="mt-3 text-xs text-slate-500">

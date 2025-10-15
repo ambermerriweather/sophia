@@ -1,3 +1,4 @@
+
 // data/packEnhancements.ts
 // This script programmatically enhances the base content pack to ensure
 // depth in key areas and add new activities as requested.
@@ -73,13 +74,25 @@ const dataDetectiveSeeds = (grade: Grade) => {
     // `bar-chart` items, causing a conflict when a `line-plot` item was added.
     const seeds: any[] = [
         {
-            id: gid('math', grade, 'data', 'bar_chart_v3'),
+            id: gid('math', grade, 'data', 'bar_chart_most_v3'),
             title: "Bar Chart: Favorite Colors",
             prompt: "According to the bar chart, which color is the most popular?",
             grade,
             type: "virtual",
+            displayType: "data-detective",
             responseOptions: ["Red", "Blue", "Green", "Yellow"],
             correctAnswerIndex: 1,
+            visual: { type: "bar-chart", data: [{label: "Red", value: 4}, {label: "Blue", value: 7}, {label: "Green", value: 5}] }
+        },
+        {
+            id: gid('math', grade, 'data', 'bar_chart_compare_v3'),
+            title: "Bar Chart: Compare Values",
+            prompt: "How many more people chose Blue than Red?",
+            grade,
+            type: "virtual",
+            displayType: "data-detective",
+            responseOptions: ["1", "2", "3", "4"],
+            correctAnswerIndex: 2,
             visual: { type: "bar-chart", data: [{label: "Red", value: 4}, {label: "Blue", value: 7}, {label: "Green", value: 5}] }
         },
         {
@@ -88,6 +101,7 @@ const dataDetectiveSeeds = (grade: Grade) => {
             prompt: "How many votes did 'Pizza' get based on the tally marks?",
             grade,
             type: "virtual",
+            displayType: "data-detective",
             responseOptions: ["5", "7", "8", "10"],
             correctAnswerIndex: 2,
             visual: { type: "bar-chart", data: [{ label: "Votes for Pizza (Tally)", value: 8 }] } // visual is just for show
@@ -100,6 +114,7 @@ const dataDetectiveSeeds = (grade: Grade) => {
             prompt: "What is the most common pencil length shown on the line plot?",
             grade: '2',
             type: "virtual",
+            displayType: "data-detective",
             responseOptions: ["4 inches", "5 inches", "6 inches", "7 inches"],
             correctAnswerIndex: 1,
             visual: { type: "line-plot", unit: 'inches', data: [ {value: 4, count: 2}, {value: 5, count: 4}, {value: 6, count: 3} ] }
@@ -171,14 +186,13 @@ export function applyPackEnhancements(base: Pack): Pack {
 
   // --- 2. Pad sections to 10 items per grade ---
   for (const grade of GRADES) {
-    // Math -> Data Detective
+    // Math -> Measurement & Data
     const mathSubdomain = getOrCreateSubdomain(pack, 'Mathematics', 'Measurement & Data');
-    const dataDetectiveItems = mathSubdomain.items.filter(item => 
+    const allVirtualItems = mathSubdomain.items.filter(item => 
         item.grade === grade &&
-        item.type === 'virtual' &&
-        (['bar-chart', 'line-plot'].includes(item.visual?.type) || item.title?.toLowerCase().includes('tally'))
+        item.type === 'virtual'
     );
-    let itemsToAdd = 10 - dataDetectiveItems.length;
+    let itemsToAdd = 10 - allVirtualItems.length;
     let seedIndex = 0;
     while (itemsToAdd > 0) {
         const seeds = dataDetectiveSeeds(grade);
