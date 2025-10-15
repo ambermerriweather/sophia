@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
+import { getAiClient } from '../lib/utils.ts';
 import { Activity, Model, GroupedMCQGeneratedState, ActivityState, WordDetectiveGeneratedState, SentenceBuilderGeneratedState, ActivityVisual, BarChartData, Coin } from '../types.ts';
 import { Button } from './ui/Button.tsx';
 import { Loader, ThumbsUp, ThumbsDown, Check, ArrowRight, Droplets, Anchor, X } from 'lucide-react';
-
-// Lazily initialize the AI client to avoid accessing process.env before it's available.
-let ai: GoogleGenAI | null = null;
-const getAiClient = () => {
-    if (!ai) {
-        // FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-    }
-    return ai;
-};
 
 interface GeneratedContentProps {
     activity: Activity;
@@ -421,11 +412,9 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
             setLoading(true);
             setError(null);
 
-            // FIX: Removed API key check as per guidelines, assuming key is always present.
             let schema;
             let prompt = activity.prompt;
             
-            // Add scaffolding if enabled
             if (model.settings.scaffolds) {
                 prompt += ` Please make the content and questions particularly easy and clear, suitable for a child who may need extra support.`
             }
@@ -458,7 +447,12 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                     },
                 });
                 
-                const jsonStr = response.text.trim();
+                let jsonStr = response.text.trim();
+                if (jsonStr.startsWith('```json')) {
+                    jsonStr = jsonStr.slice(7, -3).trim();
+                } else if (jsonStr.startsWith('```')) {
+                    jsonStr = jsonStr.slice(3, -3).trim();
+                }
                 const data = JSON.parse(jsonStr);
 
                 setModel(prev => ({

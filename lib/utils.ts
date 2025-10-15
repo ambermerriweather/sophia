@@ -4,7 +4,8 @@ import { Model, Domain, ActivityState, Activity } from '../types.ts';
 
 // Lazily initialize the AI client to avoid accessing process.env before it's available.
 let ai: GoogleGenAI | null = null;
-const getAiClient = () => {
+// FIX: Export the 'getAiClient' function so it can be used in other modules.
+export const getAiClient = () => {
     if (!ai) {
         // FIX: Use process.env.API_KEY and assume it's available, per SDK guidelines.
         ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
