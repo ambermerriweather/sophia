@@ -447,12 +447,52 @@ export const GeneratedContent: React.FC<GeneratedContentProps> = ({ activity, mo
                     },
                 });
                 
-                let jsonStr = response.text.trim();
-                if (jsonStr.startsWith('```json')) {
-                    jsonStr = jsonStr.slice(7, -3).trim();
-                } else if (jsonStr.startsWith('```')) {
-                    jsonStr = jsonStr.slice(3, -3).trim();
+                const rawText = response.text;
+                let jsonStr;
+
+                // Attempt to extract JSON from a markdown code block
+                const markdownMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+                if (markdownMatch && markdownMatch[1]) {
+                    jsonStr = markdownMatch[1];
+                } else {
+                    // If no markdown, find the first '{' or '[' to start parsing
+                    const firstBracket = rawText.indexOf('{');
+                    const firstSquare = rawText.indexOf('[');
+                    
+                    if (firstBracket === -1 && firstSquare === -1) {
+                         throw new Error("No JSON object or array found in the response.");
+                    }
+                    
+                    // Determine which bracket comes first
+                    let start = -1;
+                    if (firstBracket !== -1 && firstSquare !== -1) {
+                        start = Math.min(firstBracket, firstSquare);
+                    } else if (firstBracket !== -1) {
+                        start = firstBracket;
+                    } else {
+                        start = firstSquare;
+                    }
+                    
+                    // Find the corresponding closing bracket to be more robust
+                    const lastBracket = rawText.lastIndexOf('}');
+                    const lastSquare = rawText.lastIndexOf(']');
+
+                    let end = -1;
+                     if (lastBracket !== -1 && lastSquare !== -1) {
+                        end = Math.max(lastBracket, lastSquare);
+                    } else if (lastBracket !== -1) {
+                        end = lastBracket;
+                    } else {
+                        end = lastSquare;
+                    }
+
+                    if (start === -1 || end === -1) {
+                        throw new Error("Could not find complete JSON object or array in response.");
+                    }
+                    
+                    jsonStr = rawText.substring(start, end + 1);
                 }
+
                 const data = JSON.parse(jsonStr);
 
                 setModel(prev => ({
